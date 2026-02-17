@@ -1,0 +1,34 @@
+.site-header {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.site-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.site-header a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.site-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.site-nav a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #3a6ea5;
+}
+
+.site-nav a.active {
+    text-decoration: underline;
+}
