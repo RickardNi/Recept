@@ -13,4 +13,26 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
   </ItemGroup>
 
+  <!-- Auto-generate recipes.json from .md files at build time -->
+  <Target Name="GenerateRecipesList" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <RecipeFiles Include="wwwroot\recipes\*.md" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <RecipeListJson>[
+  @(RecipeFiles->'&quot;%(Filename)&quot;',',
+  ')
+]</RecipeListJson>
+    </PropertyGroup>
+
+    <WriteLinesToFile
+      File="wwwroot\recipes\recipes.json"
+      Lines="$(RecipeListJson)"
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true" />
+
+    <Message Importance="high" Text="Generated recipes.json with @(RecipeFiles->Count()) recipes" />
+  </Target>
+
 </Project>

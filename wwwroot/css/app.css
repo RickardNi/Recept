@@ -1,38 +1,3 @@
-:root,
-html,
-html[data-theme="light"] {
-    color-scheme: light !important;
-    --pico-background-color: #faf7f0 !important;
-    --pico-color: #373c44 !important;
-}
-
-html,
-body {
-    background-color: #faf7f0 !important;
-}
-
-/* Override dark mode media query specifically */
-@media (prefers-color-scheme: dark) {
-    :root,
-    html {
-        color-scheme: light !important;
-        --pico-background-color: #faf7f0 !important;
-        --pico-color: #373c44 !important;
-        --pico-h1-color: #2d3138 !important;
-        --pico-h2-color: #373c44 !important;
-        --pico-h3-color: #424751 !important;
-        --pico-h4-color: #4d535e !important;
-        --pico-h5-color: #5c6370 !important;
-        --pico-h6-color: #646b79 !important;
-        --pico-muted-color: #646b79 !important;
-        --pico-muted-border-color: rgb(231, 234, 239.5) !important;
-        --pico-card-background-color: #fff !important;
-        --pico-card-sectioning-background-color: rgb(251, 251.5, 252.25) !important;
-        --pico-code-background-color: rgb(243, 244.5, 246.75) !important;
-        --pico-code-color: #646b79 !important;
-    }
-}
-
 /* ---------------------------------------------------------
    Local Inter font
 --------------------------------------------------------- */
@@ -78,67 +43,423 @@ body {
 }
 
 /* ---------------------------------------------------------
-   Global layout
+   Base reset
 --------------------------------------------------------- */
 
-body {
-    font-family: 'Inter', sans-serif;
+body, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+hr, dl, dd, ol, ul, figure {
+    margin: 0;
+    padding: 0;
 }
 
 /* ---------------------------------------------------------
-   Typography tweaks
+   Body
 --------------------------------------------------------- */
 
-h1,
-h2,
-h3 {
-    color: #3a6ea5;
+html {
+    background-color: #faf7f0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #222;
+    background-color: #faf7f0;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1;
+    font-kerning: normal;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Make #app transparent to flex layout so header/main are
+   direct flex children of body */
+#app {
+    display: contents;
+}
+
+/* ---------------------------------------------------------
+   Typography
+--------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+ul, ol, dl, figure {
+    margin-bottom: 15px;
+}
+
+h1, h2, h3 {
     font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    color: #3a6ea5;
+}
+
+h4, h5, h6 {
+    font-weight: 400;
 }
 
 p {
     margin-bottom: 1rem;
 }
 
+
+/* ---------------------------------------------------------
+   Links
+--------------------------------------------------------- */
+
+a {
+    color: #2a7ae2;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #1756a9;
+}
+
+a:hover {
+    color: #111;
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   Images
+--------------------------------------------------------- */
+
+img {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
 /* ---------------------------------------------------------
    Lists
 --------------------------------------------------------- */
 
-ul,
-ol {
-    margin-bottom: 1.5rem;
+ul, ol {
+    margin-left: 30px;
 }
 
-li {
-    margin-bottom: 0.4rem;
+ul,
+ul li {
+    list-style-type: disc;
+}
+
+li > ul,
+li > ol {
+    margin-bottom: 0;
 }
 
 /* ---------------------------------------------------------
-   Tables (Pico already styles them, this just warms them up)
+   Blockquotes
+--------------------------------------------------------- */
+
+blockquote {
+    color: #828282;
+    border-left: 4px solid #e8e8e8;
+    padding-left: 15px;
+    font-size: 18px;
+    letter-spacing: -1px;
+    font-style: italic;
+}
+
+blockquote > :last-child {
+    margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------
+   Tables
 --------------------------------------------------------- */
 
 table {
-    margin-top: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
+    width: 100%;
+    text-align: left;
+    color: #3f3f3f;
+    border-collapse: collapse;
+    border: 1px solid #e8e8e8;
 }
 
-th {
-    background: #f0ece4;
-    font-weight: 600;
+table tr:nth-child(even) {
+    background-color: #f7f7f7;
 }
 
-td,
-th {
-    padding: 0.6rem 0.8rem;
+table th, table td {
+    padding: 10px 15px;
+}
+
+table th {
+    background-color: #f0f0f0;
+    border: 1px solid #dedede;
+    border-bottom-color: #c9c9c9;
+}
+
+table td {
+    border: 1px solid #e8e8e8;
 }
 
 /* ---------------------------------------------------------
-   Recipe-specific tweaks
+   Wrapper
+--------------------------------------------------------- */
+
+.wrapper {
+    max-width: calc(800px - (30px * 2));
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 30px;
+    padding-left: 30px;
+}
+
+@media screen and (max-width: 800px) {
+    .wrapper {
+        max-width: calc(800px - 30px);
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+}
+
+.wrapper::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* ---------------------------------------------------------
+   Site header
+--------------------------------------------------------- */
+
+.site-header {
+    border-top: 5px solid #b58900;
+    border-bottom: 1px solid #e8e8e8;
+    min-height: 55.95px;
+    position: relative;
+}
+
+.site-title {
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 54px;
+    letter-spacing: -1px;
+    margin-bottom: 0;
+    float: left;
+}
+
+.site-title,
+.site-title:visited {
+    color: #424242;
+}
+
+.site-title:hover {
+    text-decoration: none;
+}
+
+/* ---------------------------------------------------------
+   Site nav
+--------------------------------------------------------- */
+
+.site-nav {
+    float: right;
+    line-height: 54px;
+}
+
+.site-nav .nav-trigger {
+    display: none;
+}
+
+.site-nav .menu-icon {
+    display: none;
+}
+
+.site-nav .page-link {
+    color: #111;
+    line-height: 1.5;
+}
+
+.site-nav .page-link:visited {
+    color: #111;
+}
+
+.site-nav .page-link:not(:last-child) {
+    margin-right: 20px;
+}
+
+@media screen and (max-width: 600px) {
+    .site-nav {
+        position: absolute;
+        top: 9px;
+        right: 15px;
+        background-color: #faf7f0;
+        border: 1px solid #e8e8e8;
+        border-radius: 5px;
+        text-align: right;
+    }
+
+    .site-nav label[for="nav-trigger"] {
+        display: block;
+        float: right;
+        width: 36px;
+        height: 36px;
+        z-index: 2;
+        cursor: pointer;
+    }
+
+    .site-nav .menu-icon {
+        display: block;
+        float: right;
+        width: 36px;
+        height: 26px;
+        line-height: 0;
+        padding-top: 10px;
+        text-align: center;
+    }
+
+    .site-nav .menu-icon > svg {
+        fill: #424242;
+    }
+
+    .site-nav input ~ .trigger {
+        clear: both;
+        display: none;
+    }
+
+    .site-nav input:checked ~ .trigger {
+        display: block;
+        padding-bottom: 5px;
+    }
+
+    .site-nav .page-link {
+        display: block;
+        padding: 5px 10px;
+        margin-left: 20px;
+    }
+
+    .site-nav .page-link:not(:last-child) {
+        margin-right: 0;
+    }
+}
+
+/* ---------------------------------------------------------
+   Page content
+--------------------------------------------------------- */
+
+.page-content {
+    padding: 30px 0;
+    flex: 1;
+}
+
+/* ---------------------------------------------------------
+   Recipe-specific: bold ingredient amounts
 --------------------------------------------------------- */
 
 strong {
     display: inline-block;
     margin-right: 0.15rem;
+}
+
+/* ---------------------------------------------------------
+   Ordered task-list: checkbox BEFORE the step number
+--------------------------------------------------------- */
+
+ol.contains-task-list {
+    list-style: none;
+    counter-reset: recipe-step;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+ol.contains-task-list > li.task-list-item {
+    counter-increment: recipe-step;
+    position: relative;
+    padding-left: 4em;
+    margin-bottom: 0.6rem;
+}
+
+/* Checkbox — flush left */
+ol.contains-task-list > li.task-list-item > input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0.25em;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Step number — spaced away from checkbox */
+ol.contains-task-list > li.task-list-item::before {
+    content: counter(recipe-step) ". ";
+    position: absolute;
+    left: 2.2em;
+    top: 0;
+    min-width: 1.6em;
+}
+
+/* ---------------------------------------------------------
+   Task list checkboxes (general)
+--------------------------------------------------------- */
+
+.task-list-item {
+    list-style-type: none !important;
+    margin-bottom: 0.4rem;
+}
+
+input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: #4caf50;
+}
+
+/* ---------------------------------------------------------
+   Strikethrough for checked steps (CSS-only, no JS needed)
+--------------------------------------------------------- */
+
+li.task-list-item:has(> input[type="checkbox"]:checked) {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* strong is display:inline-block so text-decoration doesn't inherit — re-apply explicitly */
+li.task-list-item:has(> input[type="checkbox"]:checked) strong {
+    text-decoration: line-through;
+}
+
+/* ---------------------------------------------------------
+   Portion selector
+--------------------------------------------------------- */
+
+#portion-control {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+#portion-select {
+    padding: 0.4rem 0.7rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: white;
+    cursor: pointer;
+}
+
+/* ---------------------------------------------------------
+   Mobile
+--------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    body {
+        font-size: 16px;
+        padding: 0.8rem;
+    }
+
+    h1 {
+        font-size: 1.7rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
 }

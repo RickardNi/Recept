@@ -1,7 +1,48 @@
 ﻿@page "/"
+@inject RecipeService RecipeService
 
 <PageTitle>Recept</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Recept</h1>
 
-Welcome to your new app.
+@if (isLoading)
+{
+    <p>Laddar recept...</p>
+}
+else if (recipes.Count == 0)
+{
+    <p>Inga recept hittades.</p>
+}
+else
+{
+    <ul>
+        @foreach (var recipe in recipes.OrderBy(r => r.Title))
+        {
+            <li>
+                <a href="/recipe/@recipe.Slug">@recipe.Title</a>
+                @if (recipe.Categories.Count > 0)
+                {
+                    <small> - @string.Join(", ", recipe.Categories)</small>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<RecipeMetadata> recipes = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            recipes = await RecipeService.GetAllRecipesAsync();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+

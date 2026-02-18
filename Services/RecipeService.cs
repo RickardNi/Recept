@@ -1,0 +1,87 @@
+using System.Net.Http.Json;
+using System.Text.RegularExpressions;
+using Recept.Models;
+
+namespace Recept.Services;
+
+public class RecipeService(HttpClient http)
+{
+    private readonly HttpClient _http = http;
+
+    public async Task<List<RecipeMetadata>> GetAllRecipesAsync()
+    {
+        try
+        {
+            // Fetch the list of recipe slugs
+            var slugs = await _http.GetFromJsonAsync<List<string>>("recipes/recipes.json");
+            if (slugs == null) return new List<RecipeMetadata>();
+
+            var recipes = new List<RecipeMetadata>();
+
+            // Fetch metadata for each recipe
+            foreach (var slug in slugs)
+            {
+                try
+                {
+                    var metadata = await GetRecipeMetadataAsync(slug);
+                    recipes.Add(metadata);
+                }
+                catch
+                {
+                    // Skip recipes that fail to load
+                    continue;
+                }
+            }
+
+            return recipes;
+        }
+        catch
+        {
+            return new List<RecipeMetadata>();
+        }
+    }
+
+    public async Task<RecipeMetadata> GetRecipeMetadataAsync(string slug)
+    {
+        var markdown = await _http.GetStringAsync($"recipes/{slug}.md");
+        return ParseMetadata(slug, markdown);
+    }
+
+    private static RecipeMetadata ParseMetadata(string slug, string markdown)
+    {
+        var metadata = new RecipeMetadata { Slug = slug };
+
+        // Check for YAML frontmatter
+        var frontmatterMatch = Regex.Match(markdown, @"^---\s*\n(.*?)\n---", RegexOptions.Singleline);
+
+        if (frontmatterMatch.Success)
+        {
+            var frontmatter = frontmatterMatch.Groups[1].Value;
+
+            // Parse title
+            var titleMatch = Regex.Match(frontmatter, @"title:\s*[""'](.+?)[""']");
+            if (titleMatch.Success)
+            {
+                metadata.Title = titleMatch.Groups[1].Value;
+            }
+
+            // Parse servings
+            var servingsMatch = Regex.Match(frontmatter, @"servings:\s*(\d+)");
+            if (servingsMatch.Success && int.TryParse(servingsMatch.Groups[1].Value, out int servings))
+            {
+                metadata.Servings = servings;
+            }
+
+            // Parse categories
+            var categoriesMatch = Regex.Match(frontmatter, @"categories:\s*\n((?:\s+-\s+.+\n?)+)", RegexOptions.Multiline);
+            if (categoriesMatch.Success)
+            {
+                metadata.Categories = Regex.Matches(categoriesMatch.Groups[1].Value, @"-\s+(.+)")
+                    .Select(m => m.Groups[1].Value.Trim())
+                    .ToList();
+            }
+        }
+
+        return metadata;
+    }
+}

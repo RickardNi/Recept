@@ -1,0 +1,114 @@
+@page "/recipe/{slug}"
+@using Markdig
+@using System.Text.RegularExpressions
+@inject HttpClient Http
+
+<PageTitle>@pageTitle</PageTitle>
+
+@if (isLoading)
+{
+    <p>Laddar recept...</p>
+}
+else if (errorMessage != null)
+{
+    <h3>Hoppsan!</h3>
+    <p>@errorMessage</p>
+    <p><a href="/">Tillbaka till startsidan</a></p>
+}
+else
+{
+    <article class="recipe">
+        <h1>@recipeTitle</h1>
+        @((MarkupString)htmlContent)
+    </article>
+}
+
+@code {
+    private static readonly MarkdownPipeline pipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .Build();
+
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private string htmlContent = string.Empty;
+    private string recipeTitle = string.Empty;
+    private string pageTitle = "Recept";
+    private bool isLoading = true;
+    private string? errorMessage = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadRecipe();
+    }
+
+    private async Task LoadRecipe()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            // Construct the path to the markdown file
+            var markdownPath = $"recipes/{Slug}.md";
+
+            // Fetch the markdown content
+            var markdown = await Http.GetStringAsync(markdownPath);
+
+            // Strip YAML frontmatter and extract title
+            var markdownWithoutFrontmatter = markdown;
+            var frontmatterMatch = Regex.Match(markdown, @"^---\s*\n(.*?)\n---\s*\n", RegexOptions.Singleline);
+
+            if (frontmatterMatch.Success)
+            {
+                // Extract title from frontmatter
+                var frontmatter = frontmatterMatch.Groups[1].Value;
+                var titleMatch = Regex.Match(frontmatter, @"title:\s*[""'](.+?)[""']");
+                if (titleMatch.Success)
+                {
+                    recipeTitle = titleMatch.Groups[1].Value;
+                    pageTitle = recipeTitle + " - Recept";
+                }
+
+                // Remove frontmatter from markdown
+                markdownWithoutFrontmatter = markdown.Substring(frontmatterMatch.Length);
+            }
+
+            // Fallback: extract first H1 if no frontmatter title
+            if (string.IsNullOrEmpty(recipeTitle))
+            {
+                var h1Match = Regex.Match(markdownWithoutFrontmatter, @"^#\s+(.+)$", RegexOptions.Multiline);
+                if (h1Match.Success)
+                {
+                    recipeTitle = h1Match.Groups[1].Value.Trim();
+                    pageTitle = recipeTitle + " - Recept";
+                    // Remove the H1 from markdown since we'll display it separately
+                    markdownWithoutFrontmatter = Regex.Replace(markdownWithoutFrontmatter, @"^#\s+.+$", "", RegexOptions.Multiline).TrimStart();
+                }
+                else
+                {
+                    recipeTitle = Slug.Replace("-", " ");
+                    pageTitle = recipeTitle + " - Recept";
+                }
+            }
+
+            // Convert markdown to HTML using Markdig
+            htmlContent = Markdown.ToHtml(markdownWithoutFrontmatter, pipeline);
+
+            // Make task-list checkboxes interactive (Markdig marks them disabled)
+            htmlContent = htmlContent.Replace("disabled=\"disabled\" type=\"checkbox\"", "type=\"checkbox\"");
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = $"Kunde inte hitta receptet '{Slug}'. Kontrollera att filen finns i recept-mappen.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ett fel uppstod: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
