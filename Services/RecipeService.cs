@@ -14,7 +14,7 @@ public class RecipeService(HttpClient http)
         {
             // Fetch the list of recipe slugs
             var slugs = await _http.GetFromJsonAsync<List<string>>("recipes/recipes.json");
-            if (slugs == null) return new List<RecipeMetadata>();
+            if (slugs == null) return [];
 
             var recipes = new List<RecipeMetadata>();
 
@@ -37,7 +37,7 @@ public class RecipeService(HttpClient http)
         }
         catch
         {
-            return new List<RecipeMetadata>();
+            return [];
         }
     }
 
