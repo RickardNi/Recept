@@ -474,22 +474,68 @@ li.task-list-item:has(> input[type="checkbox"]:checked) strong {
     cursor: default;
 }
 
-.portion-control select {
-    appearance: none;
-    -webkit-appearance: none;
+.portion-select-wrapper {
+    position: relative;
+}
+
+.portion-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
     border: none;
     border-bottom: 2px solid #3a6ea5;
-    border-radius: 0;
-    background: transparent
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a6ea5'/%3E%3C/svg%3E")
-        no-repeat right 2px center;
-    padding: 0.2rem 1.4rem 0.2rem 0.1rem;
+    padding: 0.15rem 0.1rem 0.15rem 0.6rem;
     font-size: 1rem;
     font-family: inherit;
     font-weight: 600;
     color: #3a6ea5;
     cursor: pointer;
-    min-width: 110px;
+    outline: none;
+    min-width: 120px;
+}
+
+.portion-trigger:focus {
+    outline: none;
+}
+
+.portion-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.portion-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem 0;
+    min-width: 150px;
+    overflow: hidden;
+}
+
+.portion-option {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    color: #222;
+    transition: background 0.12s ease;
+}
+
+.portion-option:hover {
+    background: #f0f5fb;
+    color: #3a6ea5;
+}
+
+.portion-option.active {
+    font-weight: 600;
+    color: #3a6ea5;
 }
 
 /* ---------------------------------------------------------
