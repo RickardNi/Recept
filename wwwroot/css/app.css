@@ -231,8 +231,8 @@ table td {
 
 .recipe-body {
     display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 2.5rem;
+    grid-template-columns: 400px 1fr;
+    gap: 3rem;
     align-items: start;
 }
 
