@@ -17,7 +17,6 @@ ingredients:
 
 Väldigt krämig och god vegofärsgryta som med havregrädde blir helt vegansk. Snabbt och lätt att slänga ihop i en liten stekpanna.
 
-**Portioner:** 1 person
 **Tillagningstid:** 15 minuter
 
 

@@ -75,9 +75,7 @@ body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+    padding: 1rem 2rem;
 }
 
 /* Make #app transparent to flex layout so header/main are
@@ -203,29 +201,50 @@ table td {
 }
 
 /* ---------------------------------------------------------
-   Wrapper
+   Recipe layout
 --------------------------------------------------------- */
 
-.wrapper {
-    max-width: calc(800px - (30px * 2));
-    margin-right: auto;
-    margin-left: auto;
-    padding-right: 30px;
-    padding-left: 30px;
+.recipe {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
 }
 
-@media screen and (max-width: 800px) {
-    .wrapper {
-        max-width: calc(800px - 30px);
-        padding-right: 15px;
-        padding-left: 15px;
+.recipe-header {
+    max-width: 860px;
+    margin: 0 auto 2rem;
+    text-align: center;
+}
+
+.recipe-body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.recipe-ingredients {
+    position: sticky;
+    top: 1rem;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0.8rem;
     }
-}
 
-.wrapper::after {
-    content: "";
-    display: table;
-    clear: both;
+    .recipe-header {
+        text-align: left;
+    }
+
+    .recipe-body {
+        display: block;
+    }
+
+    .recipe-ingredients {
+        position: static;
+        margin-bottom: 2rem;
+    }
 }
 
 /* ---------------------------------------------------------
@@ -400,13 +419,12 @@ li.task-list-item:has(> input[type="checkbox"]:checked) strong {
 }
 
 /* ---------------------------------------------------------
-   Mobile
+   Mobile typography
 --------------------------------------------------------- */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     body {
         font-size: 16px;
-        padding: 0.8rem;
     }
 
     h1 {

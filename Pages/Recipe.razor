@@ -18,8 +18,18 @@ else if (errorMessage != null)
 else
 {
     <article class="recipe">
-        <h1>@recipeTitle</h1>
-        @((MarkupString)htmlContent)
+        <div class="recipe-header">
+            <h1>@recipeTitle</h1>
+            @((MarkupString)preIngredientsHtml)
+        </div>
+        <div class="recipe-body">
+            <aside class="recipe-ingredients">
+                @((MarkupString)ingredientsHtml)
+            </aside>
+            <div class="recipe-content">
+                @((MarkupString)postIngredientsHtml)
+            </div>
+        </div>
     </article>
 }
 
@@ -31,7 +41,9 @@ else
     [Parameter]
     public string Slug { get; set; } = string.Empty;
 
-    private string htmlContent = string.Empty;
+    private string preIngredientsHtml = string.Empty;
+    private string ingredientsHtml = string.Empty;
+    private string postIngredientsHtml = string.Empty;
     private string recipeTitle = string.Empty;
     private string pageTitle = "Recept";
     private bool isLoading = true;
@@ -93,14 +105,35 @@ else
             }
 
             // Convert markdown to HTML using Markdig
-            htmlContent = Markdown.ToHtml(markdownWithoutFrontmatter, pipeline);
+            var fullHtml = Markdown.ToHtml(markdownWithoutFrontmatter, pipeline);
 
             // Make task-list checkboxes interactive (Markdig marks them disabled)
-            htmlContent = htmlContent.Replace("disabled=\"disabled\" type=\"checkbox\"", "type=\"checkbox\"");
+            fullHtml = fullHtml.Replace("disabled=\"disabled\" type=\"checkbox\"", "type=\"checkbox\"");
 
             // Inject unique ids + matching <label class="step-circle"> elements so the
             // CSS :checked + label sibling selector works and step numbers show in circles.
-            htmlContent = InjectStepCircleLabels(htmlContent);
+            fullHtml = InjectStepCircleLabels(fullHtml);
+
+            // Split HTML into pre-ingredients, the ingredients section, and post-ingredients.
+            // The ingredients section is the <h2>Ingredienser</h2> block up to (not including)
+            // the next <h2> or end of content.
+            var ingredientsSplit = Regex.Match(
+                fullHtml,
+                @"(?s)(<h2[^>]*>\s*Ingredienser\s*</h2>.*?)(?=<h2[\s>]|$)",
+                RegexOptions.IgnoreCase);
+
+            if (ingredientsSplit.Success)
+            {
+                preIngredientsHtml = fullHtml.Substring(0, ingredientsSplit.Index);
+                ingredientsHtml = ingredientsSplit.Value;
+                postIngredientsHtml = fullHtml.Substring(ingredientsSplit.Index + ingredientsSplit.Length);
+            }
+            else
+            {
+                preIngredientsHtml = fullHtml;
+                ingredientsHtml = string.Empty;
+                postIngredientsHtml = string.Empty;
+            }
         }
         catch (HttpRequestException)
         {
