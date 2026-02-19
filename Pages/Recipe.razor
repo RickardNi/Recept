@@ -86,7 +86,7 @@ else
                             {
                                 <div class="portion-backdrop" @onclick="CloseServingsDropdown"></div>
                                 <ul class="portion-options">
-                                    @foreach (var val in new[] { 1,2,3,4,5,6,8,10,12 })
+                                    @foreach (var val in ValidServings)
                                     {
                                         var v = val;
                                         <li class="portion-option @(currentServings == v ? "active" : "")" @onclick="() => SelectServings(v)">
@@ -96,7 +96,7 @@ else
                                 </ul>
                             }
                         </div>
-                        <button class="portion-btn" @onclick="IncrementServings" disabled="@(currentServings >= 12)">+</button>
+                        <button class="portion-btn" @onclick="IncrementServings" disabled="@(currentServings >= MaxServings)">+</button>
                     </div>
                 }
                 @((MarkupString)scaledIngredientsListHtml)
@@ -289,6 +289,7 @@ else
     }
 
     private static readonly int[] ValidServings = { 1, 2, 3, 4, 5, 6, 8, 10, 12 };
+    private static readonly int MaxServings = ValidServings.Max();
 
     private void IncrementServings()
     {
@@ -319,7 +320,7 @@ else
 
     private void SetServings(int value)
     {
-        currentServings = Math.Clamp(value, 1, 12);
+        currentServings = Math.Clamp(value, 1, MaxServings);
         var factor = (double)currentServings / defaultServings;
         scaledIngredientsListHtml = ScaleIngredientHtml(ingredientsListHtml, factor);
         scaledPostIngredientsHtml = ScaleStepsHtml(rawPostIngredientsHtml, factor);
@@ -372,10 +373,12 @@ else
     {
         if (value == Math.Floor(value))
             return ((long)value).ToString();
+
         var rounded = Math.Round(value, 1);
         if (rounded == Math.Floor(rounded))
             return ((long)rounded).ToString();
-        return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+        return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)
+            .Replace('.', ',');
     }
 
     private static List<string> ParseFrontmatterList(string frontmatter, string key)

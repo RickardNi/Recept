@@ -21,11 +21,6 @@
 .home-list li {
     list-style: none;
     padding: 0.4rem 0;
-    border-bottom: 1px solid #f0ece3;
-}
-
-.home-list li:last-child {
-    border-bottom: none;
 }
 
 .home-list a {

@@ -18,9 +18,12 @@
             </label>
 
             <div class="trigger">
-                <a class="nav-search" href="/search" aria-label="Sök">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-                </a>
+                <form class="nav-search-form" action="/search" method="get" role="search">
+                    <input class="nav-search-input" type="search" name="query" placeholder="Sök recept..." aria-label="Sök recept" />
+                    <button class="nav-search-submit" type="submit" aria-label="Sök">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+                    </button>
+                </form>
                 <a class="page-link" href="/categories">Kategorier</a>
                 <a class="page-link" href="/ingredients">Ingredienser</a>
             </div>

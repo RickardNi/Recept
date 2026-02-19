@@ -12,6 +12,7 @@
 .ingredients-sidebar {
     position: sticky;
     top: 1rem;
+    padding-top: 1rem;
 }
 
 .ingredient-list {
@@ -70,11 +71,6 @@
 .ingredient-recipe-list li {
     list-style: none;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #f0ece3;
-}
-
-.ingredient-recipe-list li:last-child {
-    border-bottom: none;
 }
 
 .ingredient-recipe-list a {
@@ -83,8 +79,11 @@
     font-size: 1em;
 }
 
-.ingredient-recipe-list a:hover {
-    text-decoration: underline;
+.ingredient-recipe-list a:visited,
+.ingredient-recipe-list a:hover,
+.ingredient-recipe-list a:active {
+    color: #3a6ea5;
+    text-decoration: none;
 }
 
 @media (max-width: 768px) {
@@ -94,6 +93,7 @@
 
     .ingredients-sidebar {
         position: static;
+        padding-top: 0;
         margin-bottom: 1.5rem;
     }
 

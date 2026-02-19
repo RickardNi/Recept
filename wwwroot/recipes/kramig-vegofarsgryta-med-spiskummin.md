@@ -6,6 +6,7 @@ cookTime: "15 minuter"
 
 categories:
   - Veganskt
+  - Vegetariskt
   - Frysbara
   - Grytor
   - Matlådor

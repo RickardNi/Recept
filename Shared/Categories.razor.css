@@ -12,6 +12,7 @@
 .categories-sidebar {
     position: sticky;
     top: 1rem;
+    padding-top: 1rem;
 }
 
 .category-list {
@@ -46,6 +47,26 @@
 .category-item svg {
     flex-shrink: 0;
     opacity: 0.6;
+}
+
+.category-icon {
+    display: inline-flex;
+    align-items: center;
+}
+
+.category-icon--veganskt,
+.category-icon--vegetariskt {
+    color: #2e7d32;
+}
+
+.category-icon--frysbara {
+    color: #1a6fa8;
+}
+
+.category-icon--veganskt svg,
+.category-icon--vegetariskt svg,
+.category-icon--frysbara svg {
+    opacity: 0.95;
 }
 
 .category-item:hover {
@@ -83,11 +104,6 @@
 
 .recipe-list li {
     padding: 0.5rem 0;
-    border-bottom: 1px solid #f0ece3;
-}
-
-.recipe-list li:last-child {
-    border-bottom: none;
 }
 
 .recipe-list a {
@@ -96,8 +112,11 @@
     font-size: 1em;
 }
 
-.recipe-list a:hover {
-    text-decoration: underline;
+.recipe-list a:visited,
+.recipe-list a:hover,
+.recipe-list a:active {
+    color: #3a6ea5;
+    text-decoration: none;
 }
 
 @media (max-width: 768px) {
@@ -107,6 +126,7 @@
 
     .categories-sidebar {
         position: static;
+        padding-top: 0;
         margin-bottom: 1.5rem;
     }
 

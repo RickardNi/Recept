@@ -1,0 +1,22 @@
+.search-page {
+    max-width: 860px;
+}
+
+.search-count {
+    color: #5f5a52;
+}
+
+.search-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.search-results li {
+    list-style: none;
+    padding: 0.45rem 0;
+}
+
+.search-results a {
+    font-size: 1em;
+}

@@ -1,0 +1,72 @@
+@page "/search"
+@inject RecipeService RecipeService
+
+<PageTitle>Sök</PageTitle>
+
+<section class="search-page">
+    <h1>Sökresultat</h1>
+
+    @if (string.IsNullOrWhiteSpace(currentQuery))
+    {
+        <p>Ange en sökning i fältet ovan för att hitta recept.</p>
+    }
+    else if (isLoading)
+    {
+        <p>Söker recept...</p>
+    }
+    else if (results.Count == 0)
+    {
+        <p>Inga recept matchade "@currentQuery".</p>
+    }
+    else
+    {
+        <p class="search-count">@results.Count träff@(results.Count == 1 ? string.Empty : "ar") för "@currentQuery".</p>
+        <ul class="search-results">
+            @foreach (var recipe in results)
+            {
+                <li>
+                    <a href="/recipe/@recipe.Slug">@recipe.Title</a>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "query")]
+    public string? Query { get; set; }
+
+    private List<RecipeMetadata> allRecipes = new();
+    private List<RecipeMetadata> results = new();
+    private bool isLoading = true;
+    private string currentQuery = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        currentQuery = Query?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(currentQuery))
+        {
+            isLoading = false;
+            results = new();
+            return;
+        }
+
+        isLoading = true;
+
+        if (allRecipes.Count == 0)
+        {
+            allRecipes = await RecipeService.GetAllRecipesAsync();
+        }
+
+        results = allRecipes
+            .Where(recipe =>
+                recipe.Title.Contains(currentQuery, StringComparison.OrdinalIgnoreCase) ||
+                recipe.Categories.Any(category => category.Contains(currentQuery, StringComparison.OrdinalIgnoreCase)) ||
+                recipe.Ingredients.Any(ingredient => ingredient.Contains(currentQuery, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(recipe => recipe.Title)
+            .ToList();
+
+        isLoading = false;
+    }
+}

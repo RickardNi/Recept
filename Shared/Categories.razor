@@ -19,7 +19,9 @@ else
                                 @onclick="() => SelectCategory(category)">
                             @if (CategoryIconCatalog.Icons.TryGetValue(category, out var icon))
                             {
-                                @((MarkupString)icon)
+                                <span class="category-icon @GetIconToneClass(category)">
+                                    @((MarkupString)icon)
+                                </span>
                             }
                             @category
                         </button>
@@ -109,5 +111,26 @@ else
         filteredRecipes = allRecipes
             .Where(r => r.Categories.Contains(category))
             .ToList();
+    }
+
+    private static string GetIconToneClass(string category)
+    {
+        if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase))
+        {
+            return "category-icon--veganskt";
+        }
+
+        if (string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+        {
+            return "category-icon--vegetariskt";
+        }
+
+        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(category, "Frysbar", StringComparison.OrdinalIgnoreCase))
+        {
+            return "category-icon--frysbara";
+        }
+
+        return string.Empty;
     }
 }

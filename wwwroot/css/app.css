@@ -144,11 +144,11 @@ a {
 }
 
 a:visited {
-    color: #1756a9;
+    color: #2a7ae2;
 }
 
 a:hover {
-    color: #111;
+    color: #2a7ae2;
     text-decoration: none;
 }
 
@@ -404,8 +404,7 @@ table td {
 --------------------------------------------------------- */
 
 strong {
-    display: inline-block;
-    margin-right: 0.15rem;
+    display: inline;
 }
 
 /* ---------------------------------------------------------
