@@ -21,7 +21,6 @@ Väldigt krämig och god vegofärsgryta som med havregrädde blir helt vegansk. 
 
 
 ## Ingredienser
-
 - [ ] 100 g havreris
 - [ ] 10 g vitlöksolja
 - [ ] 3 g spiskummin
@@ -32,10 +31,6 @@ Väldigt krämig och god vegofärsgryta som med havregrädde blir helt vegansk. 
 - [ ] 10 g soja
 - [ ] 2 g socker
 - [ ] Salt och svartpeppar
-- Test
-- Test 2
-Lite vanligt text
-Och lite vanlig text
 
 ## Gör så här
 

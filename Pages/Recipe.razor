@@ -24,10 +24,24 @@ else
         </div>
         <div class="recipe-body">
             <aside class="recipe-ingredients">
-                @((MarkupString)ingredientsHtml)
+                @((MarkupString)ingredientsHeadingHtml)
+                @if (!string.IsNullOrEmpty(ingredientsListHtml))
+                {
+                    <div class="portion-control">
+                        <button class="portion-btn" @onclick="DecrementServings" disabled="@(currentServings <= 1)">−</button>
+                        <select value="@currentServings" @onchange="OnServingsSelectChanged">
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i">@i @(i == 1 ? "portion" : "portioner")</option>
+                            }
+                        </select>
+                        <button class="portion-btn" @onclick="IncrementServings" disabled="@(currentServings >= 12)">+</button>
+                    </div>
+                }
+                @((MarkupString)scaledIngredientsListHtml)
             </aside>
             <div class="recipe-content">
-                @((MarkupString)postIngredientsHtml)
+                @((MarkupString)scaledPostIngredientsHtml)
             </div>
         </div>
     </article>
@@ -42,12 +56,17 @@ else
     public string Slug { get; set; } = string.Empty;
 
     private string preIngredientsHtml = string.Empty;
-    private string ingredientsHtml = string.Empty;
-    private string postIngredientsHtml = string.Empty;
+    private string ingredientsHeadingHtml = string.Empty;
+    private string ingredientsListHtml = string.Empty;
+    private string scaledIngredientsListHtml = string.Empty;
+    private string rawPostIngredientsHtml = string.Empty;
+    private string scaledPostIngredientsHtml = string.Empty;
     private string recipeTitle = string.Empty;
     private string pageTitle = "Recept";
     private bool isLoading = true;
     private string? errorMessage = null;
+    private int defaultServings = 1;
+    private int currentServings = 1;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -80,6 +99,14 @@ else
                 {
                     recipeTitle = titleMatch.Groups[1].Value;
                     pageTitle = recipeTitle + " - Recept";
+                }
+
+                // Extract default servings
+                var servingsMatch = Regex.Match(frontmatter, @"servings:\s*(\d+)");
+                if (servingsMatch.Success && int.TryParse(servingsMatch.Groups[1].Value, out var s))
+                {
+                    defaultServings = s;
+                    currentServings = s;
                 }
 
                 // Remove frontmatter from markdown
@@ -125,14 +152,25 @@ else
             if (ingredientsSplit.Success)
             {
                 preIngredientsHtml = fullHtml.Substring(0, ingredientsSplit.Index);
-                ingredientsHtml = ingredientsSplit.Value;
-                postIngredientsHtml = fullHtml.Substring(ingredientsSplit.Index + ingredientsSplit.Length);
+
+                // Split the ingredients block into the <h2> heading and the list below it
+                var raw = ingredientsSplit.Value;
+                var headingEnd = raw.IndexOf("</h2>") + "</h2>".Length;
+                ingredientsHeadingHtml = raw.Substring(0, headingEnd);
+                ingredientsListHtml = raw.Substring(headingEnd);
+                scaledIngredientsListHtml = ingredientsListHtml;
+
+                rawPostIngredientsHtml = fullHtml.Substring(ingredientsSplit.Index + ingredientsSplit.Length);
+                scaledPostIngredientsHtml = rawPostIngredientsHtml;
             }
             else
             {
                 preIngredientsHtml = fullHtml;
-                ingredientsHtml = string.Empty;
-                postIngredientsHtml = string.Empty;
+                ingredientsHeadingHtml = string.Empty;
+                ingredientsListHtml = string.Empty;
+                scaledIngredientsListHtml = string.Empty;
+                rawPostIngredientsHtml = string.Empty;
+                scaledPostIngredientsHtml = string.Empty;
             }
         }
         catch (HttpRequestException)
@@ -147,6 +185,76 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private void IncrementServings() => SetServings(currentServings + 1);
+    private void DecrementServings() => SetServings(currentServings - 1);
+
+    private void OnServingsSelectChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var v))
+            SetServings(v);
+    }
+
+    private void SetServings(int value)
+    {
+        currentServings = Math.Clamp(value, 1, 12);
+        var factor = (double)currentServings / defaultServings;
+        scaledIngredientsListHtml = ScaleIngredientHtml(ingredientsListHtml, factor);
+        scaledPostIngredientsHtml = ScaleStepsHtml(rawPostIngredientsHtml, factor);
+    }
+
+    private static string ScaleStepsHtml(string html, double factor)
+    {
+        if (Math.Abs(factor - 1.0) < 0.0001) return html;
+
+        // Only scale numbers inside <strong> tags — ingredients are always bolded in steps
+        return Regex.Replace(
+            html,
+            @"(?s)<strong>(.*?)</strong>",
+            m =>
+            {
+                var scaled = Regex.Replace(m.Groups[1].Value, @"\d+(?:[.,]\d+)?", nm =>
+                {
+                    var numStr = nm.Value.Replace(',', '.');
+                    if (double.TryParse(numStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var num))
+                        return FormatScaledNumber(num * factor);
+                    return nm.Value;
+                });
+                return $"<strong>{scaled}</strong>";
+            });
+    }
+
+    private static string ScaleIngredientHtml(string html, double factor)
+    {
+        if (Math.Abs(factor - 1.0) < 0.0001) return html;
+
+        return Regex.Replace(
+            html,
+            @"(?s)(</label>)(.*?)(</li>)",
+            m =>
+            {
+                var scaled = Regex.Replace(m.Groups[2].Value, @"\d+(?:[.,]\d+)?", nm =>
+                {
+                    var numStr = nm.Value.Replace(',', '.');
+                    if (double.TryParse(numStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var num))
+                        return FormatScaledNumber(num * factor);
+                    return nm.Value;
+                });
+                return m.Groups[1].Value + scaled + m.Groups[3].Value;
+            });
+    }
+
+    private static string FormatScaledNumber(double value)
+    {
+        if (value == Math.Floor(value))
+            return ((long)value).ToString();
+        var rounded = Math.Round(value, 1);
+        if (rounded == Math.Floor(rounded))
+            return ((long)rounded).ToString();
+        return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private static string InjectStepCircleLabels(string html)

@@ -439,19 +439,57 @@ li.task-list-item:has(> input[type="checkbox"]:checked) strong {
    Portion selector
 --------------------------------------------------------- */
 
-#portion-control {
-    margin: 1rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+.portion-control {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 1.2rem;
+    font-size: 1rem;
 }
 
-#portion-select {
-    padding: 0.4rem 0.7rem;
-    font-size: 1rem;
-    border-radius: 6px;
+.portion-btn {
+    width: 34px;
+    height: 34px;
+    background: #fff;
     border: 1px solid #bbb;
-    background: white;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    line-height: 1;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    flex-shrink: 0;
+    color: #3a6ea5;
+}
+
+.portion-btn:hover:not(:disabled) {
+    background: #eef3fa;
+    border-color: #3a6ea5;
+}
+
+.portion-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.portion-control select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-bottom: 2px solid #3a6ea5;
+    border-radius: 0;
+    background: transparent
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233a6ea5'/%3E%3C/svg%3E")
+        no-repeat right 2px center;
+    padding: 0.2rem 1.4rem 0.2rem 0.1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    color: #3a6ea5;
+    cursor: pointer;
+    min-width: 110px;
 }
 
 /* ---------------------------------------------------------
