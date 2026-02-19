@@ -105,8 +105,8 @@ ul, ol, dl, figure {
 
 h1 {
     font-size: 2.5rem;
-    font-weight: 600;
-    color: #3a6ea5;
+    font-weight: 700;
+    color: #222;
 }
 
 h2 {
@@ -235,8 +235,19 @@ table td {
 
 .recipe-header {
     max-width: 860px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 3rem;
     text-align: center;
+}
+
+.recipe-header h1 {
+    margin-bottom: 1rem;
+}
+
+.recipe-header p {
+    font-size: 1.05rem;
+    color: #555;
+    font-weight: 400;
+    line-height: 1.6;
 }
 
 .recipe-body {
@@ -396,7 +407,7 @@ ol.contains-task-list > li.task-list-item::before {
     left: calc(26px + 1.5em);
     top: 0.1em;
     font-weight: 600;
-    color: #555;
+    color: #3a6ea5;
     min-width: 1.4em;
 }
 

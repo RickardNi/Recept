@@ -2,10 +2,13 @@
 layout: recipe
 title: "Krämig vegofärsgryta med spiskummin"
 servings: 1
+freezable: true
 
 categories:
   - veganskt
   - grytor
+  - matlådor
+  - middag
 
 ingredients:
   - vegofärs
@@ -52,9 +55,11 @@ Såsen kan bli *lite* tjockare vid upptining, men kan spädas med en skvätt vat
 
 Havreris fryser bra och håller strukturen bättre än vanligt ris.
 
+## Kostnad
+
 Ca 15 kr per portion.
 
 ## Källa
 
-Framtagen med hjälp av AI.
+Framtagen av Rickard med hjälp av AI.
 
