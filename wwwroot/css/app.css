@@ -238,7 +238,7 @@ strong {
 }
 
 /* ---------------------------------------------------------
-   Ordered task-list: checkbox BEFORE the step number
+   Ordered task-list: circular timeline checkmarks
 --------------------------------------------------------- */
 
 ol.contains-task-list {
@@ -246,35 +246,112 @@ ol.contains-task-list {
     counter-reset: recipe-step;
     padding-left: 0;
     margin-left: 0;
+    position: relative;
 }
 
 ol.contains-task-list > li.task-list-item {
     counter-increment: recipe-step;
     position: relative;
-    padding-left: 4em;
-    margin-bottom: 0.6rem;
+    /* 26px circle + 8px gap + ~1.5em for step number + 8px gap */
+    padding-left: calc(26px + 3em);
+    padding-top: 0.1em;
+    padding-bottom: 0.9em;
+    min-height: 1.8em;
+    margin-bottom: 0;
 }
 
-/* Checkbox — flush left */
+/* Dashed vertical line — left: 12px centres the 2px stroke on the circle's midpoint */
+ol.contains-task-list > li.task-list-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: calc(26px + 0.2em + 3px);
+    bottom: 0;
+    width: 0;
+    border-left: 2px dashed #bbb;
+    z-index: 0;
+}
+
+/* Step number to the RIGHT of the circle, as before */
+ol.contains-task-list > li.task-list-item::before {
+    content: counter(recipe-step) ".";
+    position: absolute;
+    left: calc(26px + 1.5em);
+    top: 0.1em;
+    font-weight: 600;
+    color: #555;
+    min-width: 1.4em;
+}
+
+/* Hide the real checkbox */
 ol.contains-task-list > li.task-list-item > input[type="checkbox"] {
     position: absolute;
-    left: 0;
-    top: 0.25em;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
     margin: 0;
-    cursor: pointer;
 }
 
-/* Step number — spaced away from checkbox */
-ol.contains-task-list > li.task-list-item::before {
-    content: counter(recipe-step) ". ";
+/* Clickable circular button */
+ol.contains-task-list > li.task-list-item > label.step-circle {
     position: absolute;
-    left: 2.2em;
-    top: 0;
-    min-width: 1.6em;
+    left: 0;
+    top: 0.2em;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #bbb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    box-sizing: border-box;
+    transition: background 0.22s ease, border-color 0.22s ease,
+                transform 0.12s ease, box-shadow 0.22s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    user-select: none;
+}
+
+/* Checked state */
+ol.contains-task-list > li.task-list-item
+    > input[type="checkbox"]:checked + label.step-circle {
+    background: #0d3d12;
+    border-color: #0d3d12;
+    box-shadow: 0 2px 6px rgba(13,61,18,0.45);
+    animation: step-pop 0.28s ease forwards;
+}
+
+/* Checkmark — centred inside the flex circle */
+ol.contains-task-list > li.task-list-item
+    > input[type="checkbox"]:checked + label.step-circle::after {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 11px;
+    border-right: 2.5px solid #fff;
+    border-bottom: 2.5px solid #fff;
+    transform: rotate(45deg);
+    margin-top: -3px; /* optical nudge: tick shape sits slightly low without this */
+}
+
+/* Press animation */
+ol.contains-task-list > li.task-list-item > label.step-circle:active {
+    transform: scale(0.82);
+}
+
+/* Pop animation on check */
+@keyframes step-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    70%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
 }
 
 /* ---------------------------------------------------------
-   Task list checkboxes (general)
+   Task list checkboxes (general — unordered lists / fallback)
 --------------------------------------------------------- */
 
 .task-list-item {
@@ -286,7 +363,7 @@ input[type="checkbox"] {
     width: 1.2rem;
     height: 1.2rem;
     cursor: pointer;
-    accent-color: #4caf50;
+    accent-color: #2e7d32;
 }
 
 /* ---------------------------------------------------------

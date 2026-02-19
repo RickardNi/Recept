@@ -97,6 +97,10 @@ else
 
             // Make task-list checkboxes interactive (Markdig marks them disabled)
             htmlContent = htmlContent.Replace("disabled=\"disabled\" type=\"checkbox\"", "type=\"checkbox\"");
+
+            // Inject unique ids + matching <label class="step-circle"> elements so the
+            // CSS :checked + label sibling selector works and step numbers show in circles.
+            htmlContent = InjectStepCircleLabels(htmlContent);
         }
         catch (HttpRequestException)
         {
@@ -111,4 +115,23 @@ else
             isLoading = false;
         }
     }
+
+    private static string InjectStepCircleLabels(string html)
+    {
+        // Each checkbox gets a unique id; a <label class="step-circle"> is inserted right
+        // after it so the CSS adjacent-sibling rule (input:checked + label) can style it.
+        int stepIndex = 0;
+        return Regex.Replace(
+            html,
+            @"<li class=""task-list-item""><input type=""checkbox""([^>]*)>",
+            m =>
+            {
+                stepIndex++;
+                var id = $"step-{stepIndex}";
+                var attrs = m.Groups[1].Value;
+                return $"<li class=\"task-list-item\"><input type=\"checkbox\" id=\"{id}\"{attrs}>" +
+                       $"<label class=\"step-circle\" for=\"{id}\"></label>";
+            });
+    }
 }
+
