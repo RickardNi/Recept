@@ -63,7 +63,7 @@ html {
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
         Helvetica, Arial, sans-serif;
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.7;
     color: #222;
     background-color: #faf7f0;
@@ -93,7 +93,20 @@ ul, ol, dl, figure {
     margin-bottom: 15px;
 }
 
-h1, h2, h3 {
+h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #3a6ea5;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #3a6ea5;
+}
+
+h3 {
+    font-size: 1.5rem;
     font-weight: 600;
     color: #3a6ea5;
 }
@@ -257,53 +270,19 @@ strong {
 }
 
 /* ---------------------------------------------------------
-   Ordered task-list: circular timeline checkmarks
+   Task-list: shared circle styles (ol and ul)
 --------------------------------------------------------- */
 
-ol.contains-task-list {
-    list-style: none;
-    counter-reset: recipe-step;
-    padding-left: 0;
-    margin-left: 0;
+.contains-task-list > li.task-list-item {
     position: relative;
-}
-
-ol.contains-task-list > li.task-list-item {
-    counter-increment: recipe-step;
-    position: relative;
-    /* 26px circle + 8px gap + ~1.5em for step number + 8px gap */
-    padding-left: calc(26px + 3em);
     padding-top: 0.1em;
-    padding-bottom: 0.9em;
+    padding-bottom: 0.5em;
     min-height: 1.8em;
     margin-bottom: 0;
 }
 
-/* Dashed vertical line — left: 12px centres the 2px stroke on the circle's midpoint */
-ol.contains-task-list > li.task-list-item:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    left: 12px;
-    top: calc(26px + 0.2em + 3px);
-    bottom: 0;
-    width: 0;
-    border-left: 2px dashed #bbb;
-    z-index: 0;
-}
-
-/* Step number to the RIGHT of the circle, as before */
-ol.contains-task-list > li.task-list-item::before {
-    content: counter(recipe-step) ".";
-    position: absolute;
-    left: calc(26px + 1.5em);
-    top: 0.1em;
-    font-weight: 600;
-    color: #555;
-    min-width: 1.4em;
-}
-
 /* Hide the real checkbox */
-ol.contains-task-list > li.task-list-item > input[type="checkbox"] {
+.contains-task-list > li.task-list-item > input[type="checkbox"] {
     position: absolute;
     opacity: 0;
     width: 0;
@@ -313,7 +292,7 @@ ol.contains-task-list > li.task-list-item > input[type="checkbox"] {
 }
 
 /* Clickable circular button */
-ol.contains-task-list > li.task-list-item > label.step-circle {
+.contains-task-list > li.task-list-item > label.step-circle {
     position: absolute;
     left: 0;
     top: 0.2em;
@@ -335,7 +314,7 @@ ol.contains-task-list > li.task-list-item > label.step-circle {
 }
 
 /* Checked state */
-ol.contains-task-list > li.task-list-item
+.contains-task-list > li.task-list-item
     > input[type="checkbox"]:checked + label.step-circle {
     background: #0d3d12;
     border-color: #0d3d12;
@@ -344,7 +323,7 @@ ol.contains-task-list > li.task-list-item
 }
 
 /* Checkmark — centred inside the flex circle */
-ol.contains-task-list > li.task-list-item
+.contains-task-list > li.task-list-item
     > input[type="checkbox"]:checked + label.step-circle::after {
     content: "";
     display: block;
@@ -357,7 +336,7 @@ ol.contains-task-list > li.task-list-item
 }
 
 /* Press animation */
-ol.contains-task-list > li.task-list-item > label.step-circle:active {
+.contains-task-list > li.task-list-item > label.step-circle:active {
     transform: scale(0.82);
 }
 
@@ -367,6 +346,63 @@ ol.contains-task-list > li.task-list-item > label.step-circle:active {
     40%  { transform: scale(1.25); }
     70%  { transform: scale(0.9); }
     100% { transform: scale(1); }
+}
+
+/* ---------------------------------------------------------
+   Ordered task-list: step numbers and timeline
+--------------------------------------------------------- */
+
+ol.contains-task-list {
+    list-style: none;
+    counter-reset: recipe-step;
+    padding-left: 0;
+    margin-left: 0;
+    position: relative;
+}
+
+ol.contains-task-list > li.task-list-item {
+    counter-increment: recipe-step;
+    /* 26px circle + gap + step number */
+    padding-left: calc(26px + 3em);
+    padding-bottom: 0.9em;
+}
+
+/* Dashed vertical line — left: 12px centres the 2px stroke on the circle's midpoint */
+ol.contains-task-list > li.task-list-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: calc(26px + 0.2em + 3px);
+    bottom: 0;
+    width: 0;
+    border-left: 2px dashed #bbb;
+    z-index: 0;
+}
+
+/* Step number to the right of the circle */
+ol.contains-task-list > li.task-list-item::before {
+    content: counter(recipe-step) ".";
+    position: absolute;
+    left: calc(26px + 1.5em);
+    top: 0.1em;
+    font-weight: 600;
+    color: #555;
+    min-width: 1.4em;
+}
+
+/* ---------------------------------------------------------
+   Unordered task-list: ingredient checkboxes (no number, no timeline)
+--------------------------------------------------------- */
+
+ul.contains-task-list {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+ul.contains-task-list > li.task-list-item {
+    /* 26px circle + small gap — no step number needed */
+    padding-left: calc(26px + 0.6em);
 }
 
 /* ---------------------------------------------------------
@@ -428,7 +464,7 @@ li.task-list-item:has(> input[type="checkbox"]:checked) strong {
     }
 
     h1 {
-        font-size: 1.7rem;
+        font-size: 1.8rem;
     }
 
     h2 {
