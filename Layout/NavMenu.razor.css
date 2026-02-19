@@ -60,6 +60,27 @@
     margin-right: 20px;
 }
 
+.nav-search {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 16px;
+    color: #424242;
+    line-height: 54px;
+    vertical-align: middle;
+    opacity: 0.7;
+    transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.nav-search:hover {
+    opacity: 1;
+    color: #3a6ea5;
+    text-decoration: none;
+}
+
+.nav-search svg {
+    display: block;
+}
+
 @media screen and (max-width: 768px) {
     .site-nav {
         position: absolute;

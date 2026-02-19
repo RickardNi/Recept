@@ -2,6 +2,7 @@
 layout: recipe
 title: "Krämig vegofärsgryta med spiskummin"
 servings: 1
+cookTime: "15 minuter"
 freezable: true
 
 categories:
@@ -19,9 +20,6 @@ ingredients:
 ---
 
 Väldigt krämig och god vegofärsgryta som med havregrädde blir helt vegansk. Snabbt och lätt att slänga ihop i en liten stekpanna.
-
-**Tillagningstid:** 15 minuter
-
 
 ## Ingredienser
 - [ ] 100 g havreris
