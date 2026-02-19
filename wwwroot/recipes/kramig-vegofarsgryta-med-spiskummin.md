@@ -18,6 +18,7 @@ ingredients:
   - spiskummin
   - grädde
   - tomatpuré
+  - soja
 ---
 
 Väldigt krämig och god vegofärsgryta som med havregrädde blir helt vegansk. Snabbt och lätt att slänga ihop i en liten stekpanna.
