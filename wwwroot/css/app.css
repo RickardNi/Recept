@@ -506,7 +506,7 @@ ol.contains-task-list {
 ol.contains-task-list > li.task-list-item {
     counter-increment: recipe-step;
     /* 26px circle + gap + step number */
-    padding-left: calc(26px + 3em);
+    padding-left: calc(26px + 3.7em);
     padding-bottom: 0.9em;
 }
 
@@ -530,7 +530,7 @@ ol.contains-task-list > li.task-list-item::before {
     top: 0.1em;
     font-weight: 600;
     color: #3a6ea5;
-    min-width: 1.4em;
+    min-width: 2em;
 }
 
 /* ---------------------------------------------------------
