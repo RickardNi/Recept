@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using Recept.Models;
+using Recept.Shared;
 
 namespace Recept.Services;
 
@@ -79,15 +80,17 @@ public class RecipeService(HttpClient http)
                 metadata.Categories = Regex.Matches(categoriesMatch.Groups[1].Value, @"-\s+(.+)")
                     .Select(m => m.Groups[1].Value.Trim())
                     .ToList();
+
+                metadata.Categories = CategoryDefinitions.NormalizeMany(metadata.Categories);
             }
 
             // Backwards compatibility for old frontmatter
             var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
             var isFreezable = freezableMatch.Success &&
                               string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
-            if (isFreezable && !metadata.Categories.Contains("Frysbar"))
+            if (isFreezable && !metadata.Categories.Contains("Frysbara"))
             {
-                metadata.Categories.Add("Frysbar");
+                metadata.Categories.Add("Frysbara");
             }
 
             // Parse ingredients tags

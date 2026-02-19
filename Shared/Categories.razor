@@ -1,6 +1,8 @@
 @page "/categories"
 @inject RecipeService RecipeService
 
+<h1 class="categories-page-heading">Kategorier</h1>
+
 @if (isLoading)
 {
     <p>Laddar recept...</p>
@@ -26,7 +28,7 @@ else
             </ul>
         </aside>
         <div class="categories-recipes">
-            <h1 class="categories-heading">@selectedCategory</h1>
+            <h2 class="categories-heading">@selectedCategory</h2>
             @if (filteredRecipes.Count == 0)
             {
                 <p>Inga recept i den här kategorin.</p>
@@ -53,6 +55,9 @@ else
     private string selectedCategory = string.Empty;
     private bool isLoading = true;
 
+    [SupplyParameterFromQuery(Name = "category")]
+    public string? CategoryQuery { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -60,17 +65,42 @@ else
             allRecipes = await RecipeService.GetAllRecipesAsync();
             categories = allRecipes
                 .SelectMany(r => r.Categories)
+                .Select(CategoryDefinitions.Normalize)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
                 .Distinct()
                 .OrderBy(c => c)
                 .ToList();
 
-            if (categories.Count > 0)
-                SelectCategory(categories[0]);
+            ApplyRequestedCategory();
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!isLoading)
+        {
+            ApplyRequestedCategory();
+        }
+    }
+
+    private void ApplyRequestedCategory()
+    {
+        if (categories.Count == 0)
+        {
+            selectedCategory = string.Empty;
+            filteredRecipes.Clear();
+            return;
+        }
+
+        var requested = CategoryDefinitions.Normalize(CategoryQuery ?? string.Empty);
+        var match = categories.FirstOrDefault(category =>
+            string.Equals(category, requested, StringComparison.OrdinalIgnoreCase));
+
+        SelectCategory(match ?? categories[0]);
     }
 
     private void SelectCategory(string category)

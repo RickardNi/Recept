@@ -281,16 +281,34 @@ table td {
     letter-spacing: 0.02em;
 }
 
+.recipe-badge,
+.recipe-badge:visited,
+.recipe-badge:hover {
+    text-decoration: none;
+}
+
 .recipe-badge--freezable {
     background: #e8f4fd;
     color: #1a6fa8;
     border: 1px solid #b8d9f0;
 }
 
+.recipe-badge--freezable,
+.recipe-badge--freezable:visited,
+.recipe-badge--freezable:hover {
+    color: #1a6fa8;
+}
+
 .recipe-badge--green {
     background: #edf8ee;
     color: #2e7d32;
     border: 1px solid #cfe7d1;
+}
+
+.recipe-badge--green,
+.recipe-badge--green:visited,
+.recipe-badge--green:hover {
+    color: #2e7d32;
 }
 
 .recipe-header p {
@@ -335,6 +353,13 @@ table td {
     color: #555;
     font-size: 0.86rem;
     font-weight: 500;
+}
+
+.recipe-tag,
+.recipe-tag:visited,
+.recipe-tag:hover {
+    text-decoration: none;
+    color: #555;
 }
 
 .recipe-body {
