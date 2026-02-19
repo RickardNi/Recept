@@ -16,7 +16,7 @@
   <!-- Auto-generate recipes.json from .md files at build time -->
   <Target Name="GenerateRecipesList" BeforeTargets="BeforeBuild">
     <ItemGroup>
-      <RecipeFiles Include="wwwroot\recipes\*.md" />
+      <RecipeFiles Include="wwwroot/recipes/*.md" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -27,7 +27,7 @@
     </PropertyGroup>
 
     <WriteLinesToFile
-      File="wwwroot\recipes\recipes.json"
+      File="wwwroot/recipes/recipes.json"
       Lines="$(RecipeListJson)"
       Overwrite="true"
       WriteOnlyWhenDifferent="true" />
