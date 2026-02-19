@@ -3,10 +3,10 @@ layout: recipe
 title: "Krämig vegofärsgryta med spiskummin"
 servings: 1
 cookTime: "15 minuter"
-freezable: true
 
 categories:
   - Veganskt
+  - Frysbar
   - Grytor
   - Matlådor
   - Middag

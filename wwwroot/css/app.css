@@ -287,11 +287,54 @@ table td {
     border: 1px solid #b8d9f0;
 }
 
+.recipe-badge--green {
+    background: #edf8ee;
+    color: #2e7d32;
+    border: 1px solid #cfe7d1;
+}
+
 .recipe-header p {
     font-size: 1.05rem;
     color: #555;
     font-weight: 400;
     line-height: 1.6;
+}
+
+.recipe-taxonomy {
+    margin-top: 0.9rem;
+    display: grid;
+    gap: 0.7rem;
+}
+
+.recipe-taxonomy-row {
+    display: block;
+    justify-items: center;
+}
+
+.recipe-tag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: center;
+}
+
+.recipe-tag-list li {
+    list-style: none;
+}
+
+.recipe-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.62rem;
+    border-radius: 999px;
+    border: 1px solid #ddd3c3;
+    background: #fff;
+    color: #555;
+    font-size: 0.86rem;
+    font-weight: 500;
 }
 
 .recipe-body {
@@ -313,6 +356,12 @@ table td {
 
     .recipe-header {
         text-align: left;
+    }
+
+    .recipe-taxonomy-row,
+    .recipe-tag-list {
+        justify-items: start;
+        justify-content: flex-start;
     }
 
     .recipe-body {

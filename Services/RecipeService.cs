@@ -80,6 +80,24 @@ public class RecipeService(HttpClient http)
                     .Select(m => m.Groups[1].Value.Trim())
                     .ToList();
             }
+
+            // Backwards compatibility for old frontmatter
+            var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
+            var isFreezable = freezableMatch.Success &&
+                              string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
+            if (isFreezable && !metadata.Categories.Contains("Frysbar"))
+            {
+                metadata.Categories.Add("Frysbar");
+            }
+
+            // Parse ingredients tags
+            var ingredientsMatch = Regex.Match(frontmatter, @"ingredients:\s*\n((?:\s+-\s+.+\n?)+)", RegexOptions.Multiline);
+            if (ingredientsMatch.Success)
+            {
+                metadata.Ingredients = Regex.Matches(ingredientsMatch.Groups[1].Value, @"-\s+(.+)")
+                    .Select(m => m.Groups[1].Value.Trim())
+                    .ToList();
+            }
         }
 
         return metadata;

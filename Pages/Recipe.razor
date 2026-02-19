@@ -20,7 +20,7 @@ else
     <article class="recipe">
         <div class="recipe-header">
             <h1>@recipeTitle</h1>
-            @if (!string.IsNullOrEmpty(cookTime) || isFreezable)
+            @if (!string.IsNullOrEmpty(cookTime) || highlightedCategories.Count > 0)
             {
                 <div class="recipe-meta">
                     @if (!string.IsNullOrEmpty(cookTime))
@@ -30,16 +30,46 @@ else
                             @cookTime
                         </span>
                     }
-                    @if (isFreezable)
+                    @foreach (var category in highlightedCategories)
                     {
-                        <div class="recipe-badge recipe-badge--freezable">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 20-1.25-2.5L6 18"/><path d="M10 4 8.75 6.5 6 6"/><path d="m14 20 1.25-2.5L18 18"/><path d="m14 4 1.25 2.5L18 6"/><path d="m17 21-3-6h-4"/><path d="m17 3-3 6 1.5 3"/><path d="M2 12h6.5L10 9"/><path d="m20 10-1.5 2 1.5 2"/><path d="M22 12h-6.5L14 15"/><path d="m4 10 1.5 2L4 14"/><path d="m7 21 3-6-1.5-3"/><path d="m7 3 3 6h4"/></svg>
-                            Frysbar
-                        </div>
+                        <span class="@GetCategoryBadgeClass(category)">
+                            @if (CategoryIconCatalog.Icons.TryGetValue(category, out var icon))
+                            {
+                                @((MarkupString)icon)
+                            }
+                            @category
+                        </span>
                     }
                 </div>
             }
             @((MarkupString)preIngredientsHtml)
+            @if (secondaryCategories.Count > 0 || ingredientTags.Count > 0)
+            {
+                <div class="recipe-taxonomy">
+                    @if (secondaryCategories.Count > 0)
+                    {
+                        <div class="recipe-taxonomy-row">
+                            <ul class="recipe-tag-list">
+                                @foreach (var category in secondaryCategories)
+                                {
+                                    <li><span class="recipe-tag">@category</span></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    @if (ingredientTags.Count > 0)
+                    {
+                        <div class="recipe-taxonomy-row">
+                            <ul class="recipe-tag-list">
+                                @foreach (var ingredient in ingredientTags)
+                                {
+                                    <li><span class="recipe-tag">@ingredient</span></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
         </div>
         <div class="recipe-body">
             <aside class="recipe-ingredients">
@@ -98,9 +128,20 @@ else
     private string? errorMessage = null;
     private int defaultServings = 1;
     private int currentServings = 1;
-    private bool isFreezable = false;
     private string cookTime = string.Empty;
     private bool isServingsDropdownOpen = false;
+    private List<string> recipeCategories = new();
+    private List<string> highlightedCategories = new();
+    private List<string> secondaryCategories = new();
+    private List<string> ingredientTags = new();
+
+    private static readonly string[] HighlightedCategoryOrder = ["Veganskt", "Vegetariskt", "Frysbar"];
+    private static readonly HashSet<string> HighlightedCategorySet =
+    [
+        "Veganskt",
+        "Vegetariskt",
+        "Frysbar"
+    ];
 
     protected override async Task OnParametersSetAsync()
     {
@@ -114,6 +155,16 @@ else
 
         try
         {
+            recipeTitle = string.Empty;
+            pageTitle = "Recept";
+            defaultServings = 1;
+            currentServings = 1;
+            cookTime = string.Empty;
+            recipeCategories = new();
+            highlightedCategories = new();
+            secondaryCategories = new();
+            ingredientTags = new();
+
             // Construct the path to the markdown file
             var markdownPath = $"recipes/{Slug}.md";
 
@@ -143,10 +194,25 @@ else
                     currentServings = s;
                 }
 
-                // Extract freezable flag
+                recipeCategories = ParseFrontmatterList(frontmatter, "categories");
+                ingredientTags = ParseFrontmatterList(frontmatter, "ingredients");
+
+                // Backwards compatibility for old frontmatter: freezable: true
                 var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
-                isFreezable = freezableMatch.Success &&
-                    string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
+                var isFreezable = freezableMatch.Success &&
+                                 string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
+                if (isFreezable && !recipeCategories.Contains("Frysbar"))
+                {
+                    recipeCategories.Add("Frysbar");
+                }
+
+                highlightedCategories = HighlightedCategoryOrder
+                    .Where(highlight => recipeCategories.Contains(highlight))
+                    .ToList();
+
+                secondaryCategories = recipeCategories
+                    .Where(category => !HighlightedCategorySet.Contains(category))
+                    .ToList();
 
                 // Extract cook time
                 var cookTimeMatch = Regex.Match(frontmatter, @"cookTime:\s*[""']?(.+?)[""']?\s*$", RegexOptions.Multiline);
@@ -318,6 +384,40 @@ else
         if (rounded == Math.Floor(rounded))
             return ((long)rounded).ToString();
         return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static List<string> ParseFrontmatterList(string frontmatter, string key)
+    {
+        var listMatch = Regex.Match(
+            frontmatter,
+            $@"{Regex.Escape(key)}:\s*\n((?:\s+-\s+.+\n?)+)",
+            RegexOptions.Multiline);
+
+        if (!listMatch.Success)
+        {
+            return [];
+        }
+
+        return Regex.Matches(listMatch.Groups[1].Value, @"-\s+(.+)")
+            .Select(m => m.Groups[1].Value.Trim())
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToList();
+    }
+
+    private static string GetCategoryBadgeClass(string category)
+    {
+        if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recipe-badge recipe-badge--green";
+        }
+
+        if (string.Equals(category, "Frysbar", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recipe-badge recipe-badge--freezable";
+        }
+
+        return "recipe-badge";
     }
 
     private static string InjectStepCircleLabels(string html)
