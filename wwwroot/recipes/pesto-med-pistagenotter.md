@@ -29,7 +29,7 @@ Färska kryddor kan vara frysta kryddor också, men för torkade varianter på b
 ### Till servering
 
 - [ ] surdegsbröd
-- [ ] tomtat
+- [ ] tomat
 - [ ] flingsalt
 - [ ] svartpeppar
 - [ ] (chili-flakes)
@@ -37,7 +37,7 @@ Färska kryddor kan vara frysta kryddor också, men för torkade varianter på b
 
 ## Gör så här
 
-1. [ ] Skala pistagenötterna så att du har **50 g pistagenötter** efter de är skalade.
+1. [ ] Skala pistagenötterna så att du har **50 g pistagenötter** efter att de är skalade.
 2. [ ] Riv ner **50 g Parmigiano-Reggiano**.
 3. [ ] Blanda samman **50 g färsk basilika**, **15 g färsk persilja**, **15 g färsk koriander**, **115 g olivolja**, **15 g rödlök**, de skalade pistagenötterna, samt parmesanen, i ett kärl där du kan köra stavmixern i senare.
 4. [ ] Riv ner zesten från citronen och pressa ur saften från halva citronen.

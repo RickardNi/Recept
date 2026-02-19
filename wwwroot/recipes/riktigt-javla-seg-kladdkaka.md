@@ -25,7 +25,7 @@ ingredients:
 - [ ] 75 g vetemjöl
 
 ## Gör så här
-1. [ ] Sätt ugnen på 150° C och över/under-värme.
+1. [ ] Sätt ugnen på 150 °C och över/under-värme.
 2. [ ] Smält **100 g smör** i en kastrull.
 3. [ ] Vispa ihop **2 ägg**, **300 g socker**, **24 g kakao** och **8 g vaniljsocker**.
 4. [ ] Rör ner det smälta smöret.
@@ -35,4 +35,4 @@ ingredients:
 8. [ ] För bäst resultat, ställ in direkt i kylen och låt svalna innan servering.
 
 ## Källa
-Framtaget efter flertalet expriment-försök och bollning med AI.
+Framtaget efter flertalet experiment-försök och bollning med AI.

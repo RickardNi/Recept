@@ -26,6 +26,7 @@ ingredients:
   - ris
   - smör
   - spiskummin
+  - svamp
   - tomatpuré
   - vegofärs
   - ägg
@@ -42,7 +43,7 @@ Kort beskrivning av rätten.
 - [ ] valfritt tillbehör
 
 ## Gör så här
-1. [ ] Sätt på ugnen på 200° C.
+1. [ ] Sätt på ugnen på 200 °C.
 2. [ ] Förbered **100 g ingrediens 1**.
 3. [ ] Tillsätt **2 dl ingrediens 2** och rör om.
 4. [ ] Smaka av med **1 tsk ingrediens 3**.

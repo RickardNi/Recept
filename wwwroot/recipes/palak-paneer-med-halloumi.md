@@ -23,7 +23,7 @@ ingredients:
 
 Ett riktigt bra, gott, enkelt och skapligt billigt recept. Det här receptet ligger till grund för receptboken, dels för att det är så bra, men främst för att de ändrade det publicerade receptet helt plötsligt till en kass version innan de slutligen ändrade tillbaka efter folk klagade.
 
-Vi brukar skippar löken helt.
+Vi brukar skippa löken helt.
 
 ## Ingredienser
 - [ ] (1 gul lök)
