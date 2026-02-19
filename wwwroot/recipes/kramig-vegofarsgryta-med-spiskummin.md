@@ -6,10 +6,10 @@ cookTime: "15 minuter"
 freezable: true
 
 categories:
-  - veganskt
-  - grytor
-  - matlådor
-  - middag
+  - Veganskt
+  - Grytor
+  - Matlådor
+  - Middag
 
 ingredients:
   - vegofärs

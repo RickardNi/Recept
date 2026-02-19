@@ -1,0 +1,45 @@
+.home-page {
+    display: grid;
+    gap: 2.5rem;
+}
+
+.home-intro {
+    margin: 0;
+    max-width: 65ch;
+}
+
+.home-highlights h2 {
+    margin-bottom: 0.75rem;
+}
+
+.home-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.home-list li {
+    list-style: none;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f0ece3;
+}
+
+.home-list li:last-child {
+    border-bottom: none;
+}
+
+.home-list a {
+    font-size: 1em;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

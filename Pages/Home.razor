@@ -3,46 +3,95 @@
 
 <PageTitle>Recept</PageTitle>
 
-<h1>Recept</h1>
+<section class="home-page">
+	<section>
+		<p class="home-intro">Välkommen till min samling av recept för vardag och helg. Här hittar du rätter jag återkommer till, med fokus på tydliga instruktioner och sådant som faktiskt fungerar i ett vanligt kök.</p>
+	</section>
 
-@if (isLoading)
-{
-    <p>Laddar recept...</p>
-}
-else if (recipes.Count == 0)
-{
-    <p>Inga recept hittades.</p>
-}
-else
-{
-    <ul>
-        @foreach (var recipe in recipes.OrderBy(r => r.Title))
-        {
-            <li>
-                <a href="/recipe/@recipe.Slug">@recipe.Title</a>
-                @if (recipe.Categories.Count > 0)
-                {
-                    <small> - @string.Join(", ", recipe.Categories)</small>
-                }
-            </li>
-        }
-    </ul>
-}
+	@if (isLoading)
+	{
+		<p>Laddar startsidan...</p>
+	}
+	else
+	{
+		<section class="home-highlights" aria-labelledby="home-favorites-heading">
+			<h1 id="home-favorites-heading">Favoriter</h1>
+			@if (favoriteRecipes.Count == 0)
+			{
+				<p>Inga favoriter ännu.</p>
+			}
+			else
+			{
+				<ul class="home-list">
+					@foreach (var recipe in favoriteRecipes)
+					{
+						<li><a href="/recipe/@recipe.Slug">@recipe.Title</a></li>
+					}
+				</ul>
+			}
+		</section>
+
+		<section class="home-highlights" aria-labelledby="home-recent-heading">
+			<h1 id="home-recent-heading">Nyligen tillagda</h1>
+			@if (recentRecipes.Count == 0)
+			{
+				<p>Inga nya recept ännu.</p>
+			}
+			else
+			{
+				<ul class="home-list">
+					@foreach (var recipe in recentRecipes)
+					{
+						<li><a href="/recipe/@recipe.Slug">@recipe.Title</a></li>
+					}
+				</ul>
+			}
+		</section>
+	}
+
+	<section aria-labelledby="home-categories-heading">
+		<h1 id="home-categories-heading">Kategorier</h1>
+		<Categories />
+	</section>
+</section>
 
 @code {
-    private List<RecipeMetadata> recipes = new();
-    private bool isLoading = true;
+	private static readonly string[] FavoriteSlugs =
+	[
+		"kramig-vegofarsgryta-med-spiskummin"
+	];
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            recipes = await RecipeService.GetAllRecipesAsync();
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
+	private List<RecipeMetadata> favoriteRecipes = new();
+	private List<RecipeMetadata> recentRecipes = new();
+	private bool isLoading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			var allRecipes = await RecipeService.GetAllRecipesAsync();
+
+			favoriteRecipes = allRecipes
+				.Where(recipe => FavoriteSlugs.Contains(recipe.Slug))
+				.ToList();
+
+			if (favoriteRecipes.Count == 0)
+			{
+				favoriteRecipes = allRecipes
+					.OrderBy(recipe => recipe.Title)
+					.Take(3)
+					.ToList();
+			}
+
+			recentRecipes = allRecipes
+				.TakeLast(5)
+				.Reverse()
+				.ToList();
+		}
+		finally
+		{
+			isLoading = false;
+		}
+	}
 }
 
