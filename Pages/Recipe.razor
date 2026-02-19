@@ -202,6 +202,14 @@ else
                     .Where(highlight => recipeCategories.Contains(highlight))
                     .ToList();
 
+                if (highlightedCategories.Any(category =>
+                    string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
+                {
+                    highlightedCategories = highlightedCategories
+                        .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
                 secondaryCategories = recipeCategories
                     .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
                     .ToList();

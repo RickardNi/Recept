@@ -133,13 +133,17 @@
     .category-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.4rem;
+        gap: 0.3rem;
         width: 100%;
+    }
+
+    .category-list li {
+        margin-bottom: 0;
     }
 
     .category-item {
         width: auto;
-        padding: 0.45rem 0.8rem;
+        padding: 0.4rem 0.75rem;
         font-size: 0.98rem;
         border: 1px solid #e0d9ce;
     }
