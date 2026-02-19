@@ -1,0 +1,123 @@
+@page "/ingredients"
+@inject RecipeService RecipeService
+
+<h1 class="ingredients-page-heading">Ingredienser</h1>
+
+@if (isLoading)
+{
+    <p>Laddar ingredienser...</p>
+}
+else
+{
+    <div class="ingredients-layout">
+        <aside class="ingredients-sidebar">
+            <ul class="ingredient-list">
+                @foreach (var ingredient in ingredients)
+                {
+                    <li>
+                        <button class="ingredient-item @(selectedIngredient == ingredient ? "active" : "")"
+                                @onclick="() => SelectIngredient(ingredient)">
+                            @ToDisplayIngredient(ingredient)
+                        </button>
+                    </li>
+                }
+            </ul>
+        </aside>
+        <div class="ingredients-recipes">
+            <h2 class="ingredients-heading">@ToDisplayIngredient(selectedIngredient)</h2>
+            @if (filteredRecipes.Count == 0)
+            {
+                <p>Inga recept med den här ingrediensen.</p>
+            }
+            else
+            {
+                <ul class="ingredient-recipe-list">
+                    @foreach (var recipe in filteredRecipes.OrderBy(r => r.Title))
+                    {
+                        <li>
+                            <a href="/recipe/@recipe.Slug">@recipe.Title</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<RecipeMetadata> allRecipes = new();
+    private List<string> ingredients = new();
+    private List<RecipeMetadata> filteredRecipes = new();
+    private string selectedIngredient = string.Empty;
+    private bool isLoading = true;
+
+    [SupplyParameterFromQuery(Name = "ingredient")]
+    public string? IngredientQuery { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            allRecipes = await RecipeService.GetAllRecipesAsync();
+            ingredients = allRecipes
+                .SelectMany(recipe => recipe.Ingredients)
+                .Where(ingredient => !string.IsNullOrWhiteSpace(ingredient))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(ingredient => ingredient)
+                .ToList();
+
+            ApplyRequestedIngredient();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!isLoading)
+        {
+            ApplyRequestedIngredient();
+        }
+    }
+
+    private void SelectIngredient(string ingredient)
+    {
+        selectedIngredient = ingredient;
+        filteredRecipes = allRecipes
+            .Where(recipe => recipe.Ingredients.Any(value => string.Equals(value, ingredient, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+    }
+
+    private void ApplyRequestedIngredient()
+    {
+        if (ingredients.Count == 0)
+        {
+            selectedIngredient = string.Empty;
+            filteredRecipes.Clear();
+            return;
+        }
+
+        var requested = IngredientQuery?.Trim() ?? string.Empty;
+        var match = ingredients.FirstOrDefault(ingredient =>
+            string.Equals(ingredient, requested, StringComparison.OrdinalIgnoreCase));
+
+        SelectIngredient(match ?? ingredients[0]);
+    }
+
+    private static string ToDisplayIngredient(string ingredient)
+    {
+        if (string.IsNullOrWhiteSpace(ingredient))
+        {
+            return ingredient;
+        }
+
+        if (ingredient.Length == 1)
+        {
+            return ingredient.ToUpper();
+        }
+
+        return char.ToUpper(ingredient[0]) + ingredient[1..];
+    }
+}

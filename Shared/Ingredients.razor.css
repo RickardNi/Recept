@@ -1,0 +1,125 @@
+.ingredients-page-heading {
+    margin-bottom: 1rem;
+}
+
+.ingredients-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.ingredients-sidebar {
+    position: sticky;
+    top: 1rem;
+    padding-top: 1rem;
+}
+
+.ingredient-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: min(100%, 20rem);
+}
+
+.ingredient-list li {
+    list-style: none;
+    margin-bottom: 0.75rem;
+}
+
+.ingredient-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #e0d9ce;
+    cursor: pointer;
+    padding: 0.7rem 1.1rem;
+    border-radius: 8px;
+    width: 100%;
+    text-align: left;
+    font-size: 1.08rem;
+    font-family: inherit;
+    color: #424242;
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.ingredient-item:hover {
+    background-color: #f5f0e8;
+    border-color: #cbb89a;
+}
+
+.ingredient-item.active {
+    background-color: #e6f0ff;
+    border-color: #3a6ea5;
+    color: #1f3f66;
+    font-weight: 500;
+}
+
+.ingredients-heading {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.ingredient-recipe-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ingredient-recipe-list li {
+    list-style: none;
+    padding: 0.5rem 0;
+}
+
+.ingredient-recipe-list a {
+    color: #3a6ea5;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+.ingredient-recipe-list a:visited,
+.ingredient-recipe-list a:hover,
+.ingredient-recipe-list a:active {
+    color: #3a6ea5;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .ingredients-layout {
+        display: block;
+    }
+
+    .ingredients-sidebar {
+        position: static;
+        padding-top: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .ingredient-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        width: 100%;
+    }
+
+    .ingredient-list li {
+        margin-bottom: 0;
+    }
+
+    .ingredient-item {
+        width: auto;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.98rem;
+        border: 1px solid #e0d9ce;
+    }
+
+    .ingredient-item.active {
+        border-color: #3a6ea5;
+    }
+
+    .ingredients-heading {
+        font-size: 1.8rem;
+    }
+}

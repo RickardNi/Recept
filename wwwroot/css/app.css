@@ -1,38 +1,3 @@
-:root,
-html,
-html[data-theme="light"] {
-    color-scheme: light !important;
-    --pico-background-color: #faf7f0 !important;
-    --pico-color: #373c44 !important;
-}
-
-html,
-body {
-    background-color: #faf7f0 !important;
-}
-
-/* Override dark mode media query specifically */
-@media (prefers-color-scheme: dark) {
-    :root,
-    html {
-        color-scheme: light !important;
-        --pico-background-color: #faf7f0 !important;
-        --pico-color: #373c44 !important;
-        --pico-h1-color: #2d3138 !important;
-        --pico-h2-color: #373c44 !important;
-        --pico-h3-color: #424751 !important;
-        --pico-h4-color: #4d535e !important;
-        --pico-h5-color: #5c6370 !important;
-        --pico-h6-color: #646b79 !important;
-        --pico-muted-color: #646b79 !important;
-        --pico-muted-border-color: rgb(231, 234, 239.5) !important;
-        --pico-card-background-color: #fff !important;
-        --pico-card-sectioning-background-color: rgb(251, 251.5, 252.25) !important;
-        --pico-code-background-color: rgb(243, 244.5, 246.75) !important;
-        --pico-code-color: #646b79 !important;
-    }
-}
-
 /* ---------------------------------------------------------
    Local Inter font
 --------------------------------------------------------- */
@@ -78,67 +43,658 @@ body {
 }
 
 /* ---------------------------------------------------------
-   Global layout
+   Base reset
 --------------------------------------------------------- */
 
-body {
-    font-family: 'Inter', sans-serif;
+body, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+hr, dl, dd, ol, ul, figure {
+    margin: 0;
+    padding: 0;
 }
 
 /* ---------------------------------------------------------
-   Typography tweaks
+   Body
 --------------------------------------------------------- */
 
-h1,
-h2,
-h3 {
-    color: #3a6ea5;
+html {
+    background-color: #faf7f0;
+}
+
+*:focus-visible {
+    outline: none;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    line-height: 1.7;
+    color: #222;
+    background-color: #faf7f0;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1;
+    font-kerning: normal;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 1rem 2rem;
+}
+
+/* Make #app transparent to flex layout so header/main are
+   direct flex children of body */
+#app {
+    display: contents;
+}
+
+/* ---------------------------------------------------------
+   Content width constraint (header inner + page main)
+--------------------------------------------------------- */
+
+.wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ---------------------------------------------------------
+   Typography
+--------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+ul, ol, dl, figure {
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #222;
+}
+
+h2 {
+    font-size: 2rem;
     font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    color: #3a6ea5;
+}
+
+h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3a6ea5;
+}
+
+h4, h5, h6 {
+    font-weight: 400;
 }
 
 p {
     margin-bottom: 1rem;
 }
 
+
+/* ---------------------------------------------------------
+   Links
+--------------------------------------------------------- */
+
+a {
+    color: #2a7ae2;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #2a7ae2;
+}
+
+a:hover {
+    color: #2a7ae2;
+    text-decoration: none;
+}
+
+/* ---------------------------------------------------------
+   Images
+--------------------------------------------------------- */
+
+img {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
 /* ---------------------------------------------------------
    Lists
 --------------------------------------------------------- */
 
-ul,
-ol {
-    margin-bottom: 1.5rem;
+ul, ol {
+    margin-left: 30px;
 }
 
-li {
-    margin-bottom: 0.4rem;
+ul,
+ul li {
+    list-style-type: disc;
+}
+
+li > ul,
+li > ol {
+    margin-bottom: 0;
 }
 
 /* ---------------------------------------------------------
-   Tables (Pico already styles them, this just warms them up)
+   Blockquotes
+--------------------------------------------------------- */
+
+blockquote {
+    color: #828282;
+    border-left: 4px solid #e8e8e8;
+    padding-left: 15px;
+    font-size: 18px;
+    letter-spacing: -1px;
+    font-style: italic;
+}
+
+blockquote > :last-child {
+    margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------
+   Tables
 --------------------------------------------------------- */
 
 table {
-    margin-top: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
+    width: 100%;
+    text-align: left;
+    color: #3f3f3f;
+    border-collapse: collapse;
+    border: 1px solid #e8e8e8;
 }
 
-th {
-    background: #f0ece4;
-    font-weight: 600;
+table tr:nth-child(even) {
+    background-color: #f7f7f7;
 }
 
-td,
-th {
-    padding: 0.6rem 0.8rem;
+table th, table td {
+    padding: 10px 15px;
+}
+
+table th {
+    background-color: #f0f0f0;
+    border: 1px solid #dedede;
+    border-bottom-color: #c9c9c9;
+}
+
+table td {
+    border: 1px solid #e8e8e8;
 }
 
 /* ---------------------------------------------------------
-   Recipe-specific tweaks
+   Recipe layout
+--------------------------------------------------------- */
+
+.recipe {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.recipe-header {
+    max-width: 860px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.recipe-header h1 {
+    margin-bottom: 0.75rem;
+}
+
+.recipe-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.recipe-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.recipe-meta-item svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.recipe-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.recipe-badge,
+.recipe-badge:visited,
+.recipe-badge:hover {
+    text-decoration: none;
+}
+
+.recipe-badge--freezable {
+    background: #e8f4fd;
+    color: #1a6fa8;
+    border: 1px solid #b8d9f0;
+}
+
+.recipe-badge--freezable,
+.recipe-badge--freezable:visited,
+.recipe-badge--freezable:hover {
+    color: #1a6fa8;
+}
+
+.recipe-badge--green {
+    background: #edf8ee;
+    color: #2e7d32;
+    border: 1px solid #cfe7d1;
+}
+
+.recipe-badge--green,
+.recipe-badge--green:visited,
+.recipe-badge--green:hover {
+    color: #2e7d32;
+}
+
+.recipe-header p {
+    font-size: 1.05rem;
+    color: #555;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.recipe-taxonomy {
+    margin-top: 0.9rem;
+    display: grid;
+    gap: 0.7rem;
+}
+
+.recipe-taxonomy-row {
+    display: block;
+    justify-items: center;
+}
+
+.recipe-tag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: center;
+}
+
+.recipe-tag-list li {
+    list-style: none;
+}
+
+.recipe-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.62rem;
+    border-radius: 999px;
+    border: 1px solid #ddd3c3;
+    background: #fff;
+    color: #555;
+    font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.recipe-tag,
+.recipe-tag:visited,
+.recipe-tag:hover {
+    text-decoration: none;
+    color: #555;
+}
+
+.recipe-body {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.recipe-ingredients {
+    position: sticky;
+    top: 1rem;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0.8rem;
+    }
+
+    .recipe-header {
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+
+    .recipe-meta {
+        justify-content: flex-start;
+    }
+
+    .recipe-taxonomy-row,
+    .recipe-tag-list {
+        justify-items: center;
+        justify-content: center;
+    }
+
+    .recipe-body {
+        display: block;
+    }
+
+    .recipe-ingredients {
+        position: static;
+        margin-bottom: 2rem;
+    }
+}
+
+/* ---------------------------------------------------------
+   Recipe-specific: bold ingredient amounts
 --------------------------------------------------------- */
 
 strong {
-    display: inline-block;
-    margin-right: 0.15rem;
+    display: inline;
+}
+
+/* ---------------------------------------------------------
+   Task-list: shared circle styles (ol and ul)
+--------------------------------------------------------- */
+
+.contains-task-list > li.task-list-item {
+    position: relative;
+    padding-top: 0.1em;
+    padding-bottom: 0.5em;
+    min-height: 1.8em;
+    margin-bottom: 0;
+}
+
+/* Hide the real checkbox */
+.contains-task-list > li.task-list-item > input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    margin: 0;
+}
+
+/* Clickable circular button */
+.contains-task-list > li.task-list-item > label.step-circle {
+    position: absolute;
+    left: 0;
+    top: 0.2em;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #bbb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    box-sizing: border-box;
+    transition: background 0.22s ease, border-color 0.22s ease,
+                transform 0.12s ease, box-shadow 0.22s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    user-select: none;
+}
+
+/* Checked state */
+.contains-task-list > li.task-list-item
+    > input[type="checkbox"]:checked + label.step-circle {
+    background: #0d3d12;
+    border-color: #0d3d12;
+    box-shadow: 0 2px 6px rgba(13,61,18,0.45);
+    animation: step-pop 0.28s ease forwards;
+}
+
+/* Checkmark — centred inside the flex circle */
+.contains-task-list > li.task-list-item
+    > input[type="checkbox"]:checked + label.step-circle::after {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 11px;
+    border-right: 2.5px solid #fff;
+    border-bottom: 2.5px solid #fff;
+    transform: rotate(45deg);
+    margin-top: -3px; /* optical nudge: tick shape sits slightly low without this */
+}
+
+/* Press animation */
+.contains-task-list > li.task-list-item > label.step-circle:active {
+    transform: scale(0.82);
+}
+
+/* Pop animation on check */
+@keyframes step-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    70%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+/* ---------------------------------------------------------
+   Ordered task-list: step numbers and timeline
+--------------------------------------------------------- */
+
+ol.contains-task-list {
+    list-style: none;
+    counter-reset: recipe-step;
+    padding-left: 0;
+    margin-left: 0;
+    position: relative;
+}
+
+ol.contains-task-list > li.task-list-item {
+    counter-increment: recipe-step;
+    /* 26px circle + gap + step number */
+    padding-left: calc(26px + 3em);
+    padding-bottom: 0.9em;
+}
+
+/* Dashed vertical line — left: 12px centres the 2px stroke on the circle's midpoint */
+ol.contains-task-list > li.task-list-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: calc(26px + 0.2em + 3px);
+    bottom: 0;
+    width: 0;
+    border-left: 2px dashed #bbb;
+    z-index: 0;
+}
+
+/* Step number to the right of the circle */
+ol.contains-task-list > li.task-list-item::before {
+    content: counter(recipe-step) ".";
+    position: absolute;
+    left: calc(26px + 1.5em);
+    top: 0.1em;
+    font-weight: 600;
+    color: #3a6ea5;
+    min-width: 1.4em;
+}
+
+/* ---------------------------------------------------------
+   Unordered task-list: ingredient checkboxes (no number, no timeline)
+--------------------------------------------------------- */
+
+ul.contains-task-list {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+ul.contains-task-list > li.task-list-item {
+    /* 26px circle + small gap — no step number needed */
+    padding-left: calc(26px + 0.6em);
+}
+
+/* ---------------------------------------------------------
+   Task list checkboxes (general — unordered lists / fallback)
+--------------------------------------------------------- */
+
+.task-list-item {
+    list-style-type: none !important;
+    margin-bottom: 0.4rem;
+}
+
+input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: #2e7d32;
+}
+
+/* ---------------------------------------------------------
+   Strikethrough for checked steps (CSS-only, no JS needed)
+--------------------------------------------------------- */
+
+li.task-list-item:has(> input[type="checkbox"]:checked) {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* strong is display:inline-block so text-decoration doesn't inherit — re-apply explicitly */
+li.task-list-item:has(> input[type="checkbox"]:checked) strong {
+    text-decoration: line-through;
+}
+
+/* ---------------------------------------------------------
+   Portion selector
+--------------------------------------------------------- */
+
+.portion-control {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 1.2rem;
+    font-size: 1rem;
+}
+
+.portion-btn {
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    flex-shrink: 0;
+    color: #3a6ea5;
+}
+
+.portion-btn:hover:not(:disabled) {
+    background: #eef3fa;
+    border-color: #3a6ea5;
+}
+
+.portion-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.portion-select-wrapper {
+    position: relative;
+}
+
+.portion-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid #3a6ea5;
+    padding: 0.15rem 0.1rem 0.15rem 0.6rem;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    color: #3a6ea5;
+    cursor: pointer;
+    outline: none;
+    min-width: 120px;
+}
+
+.portion-trigger:focus {
+    outline: none;
+}
+
+.portion-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.portion-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem 0;
+    min-width: 150px;
+    overflow: hidden;
+}
+
+.portion-option {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    color: #222;
+    transition: background 0.12s ease;
+}
+
+.portion-option:hover {
+    background: #f0f5fb;
+    color: #3a6ea5;
+}
+
+.portion-option.active {
+    font-weight: 600;
+    color: #3a6ea5;
+}
+
+/* ---------------------------------------------------------
+   Mobile typography
+--------------------------------------------------------- */
+
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
 }

@@ -1,11 +1,9 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="layout-container">
-    <NavMenu />
+<NavMenu />
 
-    <main>
-        <article class="content">
-            @Body
-        </article>
-    </main>
-</div>
+<main class="page-content" aria-label="Content">
+    <div class="wrapper">
+        @Body
+    </div>
+</main>

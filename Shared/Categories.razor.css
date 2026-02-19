@@ -1,0 +1,158 @@
+.categories-page-heading {
+    margin-bottom: 1rem;
+}
+
+.categories-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.categories-sidebar {
+    position: sticky;
+    top: 1rem;
+    padding-top: 1rem;
+}
+
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: min(100%, 20rem);
+}
+
+.category-list li {
+    list-style: none;
+    margin-bottom: 0.75rem;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #fff;
+    border: 1px solid #e0d9ce;
+    cursor: pointer;
+    padding: 0.7rem 1.1rem;
+    border-radius: 8px;
+    width: 100%;
+    text-align: left;
+    font-size: 1.08rem;
+    font-family: inherit;
+    color: #424242;
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.category-item svg {
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.category-icon {
+    display: inline-flex;
+    align-items: center;
+}
+
+.category-icon--veganskt,
+.category-icon--vegetariskt {
+    color: #2e7d32;
+}
+
+.category-icon--frysbara {
+    color: #1a6fa8;
+}
+
+.category-icon--veganskt svg,
+.category-icon--vegetariskt svg,
+.category-icon--frysbara svg {
+    opacity: 0.95;
+}
+
+.category-item:hover {
+    background-color: #f5f0e8;
+    border-color: #cbb89a;
+}
+
+.category-item.active {
+    background-color: #e6f0ff;
+    border-color: #3a6ea5;
+    color: #1f3f66;
+    font-weight: 500;
+}
+
+.category-item.active svg {
+    opacity: 1;
+}
+
+.categories-heading {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.recipe-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recipe-list li {
+    list-style: none;
+}
+
+.recipe-list li {
+    padding: 0.5rem 0;
+}
+
+.recipe-list a {
+    color: #3a6ea5;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+.recipe-list a:visited,
+.recipe-list a:hover,
+.recipe-list a:active {
+    color: #3a6ea5;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .categories-layout {
+        display: block;
+    }
+
+    .categories-sidebar {
+        position: static;
+        padding-top: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .category-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        width: 100%;
+    }
+
+    .category-list li {
+        margin-bottom: 0;
+    }
+
+    .category-item {
+        width: auto;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.98rem;
+        border: 1px solid #e0d9ce;
+    }
+
+    .category-item.active {
+        border-color: #3a6ea5;
+    }
+
+    .categories-heading {
+        font-size: 1.8rem;
+    }
+}

@@ -1,0 +1,454 @@
+@page "/recipe/{slug}"
+@using Markdig
+@using System.Text.RegularExpressions
+@inject HttpClient Http
+
+<PageTitle>@pageTitle</PageTitle>
+
+@if (isLoading)
+{
+    <p>Laddar recept...</p>
+}
+else if (errorMessage != null)
+{
+    <h3>Hoppsan!</h3>
+    <p>@errorMessage</p>
+    <p><a href="/">Tillbaka till startsidan</a></p>
+}
+else
+{
+    <article class="recipe">
+        <div class="recipe-header">
+            <h1>@recipeTitle</h1>
+            @if (!string.IsNullOrEmpty(cookTime) || highlightedCategories.Count > 0)
+            {
+                <div class="recipe-meta">
+                    @if (!string.IsNullOrEmpty(cookTime))
+                    {
+                        <span class="recipe-meta-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                            @cookTime
+                        </span>
+                    }
+                    @foreach (var category in highlightedCategories)
+                    {
+                        <a class="@GetCategoryBadgeClass(category)" href="@GetCategoryLink(category)">
+                            @if (CategoryIconCatalog.Icons.TryGetValue(category, out var icon))
+                            {
+                                @((MarkupString)icon)
+                            }
+                            @CategoryDefinitions.GetBadgeLabel(category)
+                        </a>
+                    }
+                </div>
+            }
+            @((MarkupString)preIngredientsHtml)
+            @if (secondaryCategories.Count > 0 || ingredientTags.Count > 0)
+            {
+                <div class="recipe-taxonomy">
+                    @if (secondaryCategories.Count > 0)
+                    {
+                        <div class="recipe-taxonomy-row">
+                            <ul class="recipe-tag-list">
+                                @foreach (var category in secondaryCategories)
+                                {
+                                    <li><a class="recipe-tag" href="@GetCategoryLink(category)">@category</a></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    @if (ingredientTags.Count > 0)
+                    {
+                        <div class="recipe-taxonomy-row">
+                            <ul class="recipe-tag-list">
+                                @foreach (var ingredient in ingredientTags)
+                                {
+                                    <li><a class="recipe-tag" href="@GetIngredientLink(ingredient)">@ingredient</a></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        <div class="recipe-body">
+            <aside class="recipe-ingredients">
+                @((MarkupString)ingredientsHeadingHtml)
+                @if (!string.IsNullOrEmpty(ingredientsListHtml))
+                {
+                    <div class="portion-control">
+                        <button class="portion-btn" @onclick="DecrementServings" disabled="@(currentServings <= 1)">−</button>
+                        <div class="portion-select-wrapper">
+                            <button class="portion-trigger" @onclick="ToggleServingsDropdown">
+                                @currentServings @(currentServings == 1 ? "portion" : "portioner")
+                            </button>
+                            @if (isServingsDropdownOpen)
+                            {
+                                <div class="portion-backdrop" @onclick="CloseServingsDropdown"></div>
+                                <ul class="portion-options">
+                                    @foreach (var val in ValidServings)
+                                    {
+                                        var v = val;
+                                        <li class="portion-option @(currentServings == v ? "active" : "")" @onclick="() => SelectServings(v)">
+                                            @v @(v == 1 ? "portion" : "portioner")
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                        <button class="portion-btn" @onclick="IncrementServings" disabled="@(currentServings >= MaxServings)">+</button>
+                    </div>
+                }
+                @((MarkupString)scaledIngredientsListHtml)
+            </aside>
+            <div class="recipe-content">
+                @((MarkupString)scaledPostIngredientsHtml)
+            </div>
+        </div>
+    </article>
+}
+
+@code {
+    private static readonly MarkdownPipeline pipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .Build();
+
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private string preIngredientsHtml = string.Empty;
+    private string ingredientsHeadingHtml = string.Empty;
+    private string ingredientsListHtml = string.Empty;
+    private string scaledIngredientsListHtml = string.Empty;
+    private string rawPostIngredientsHtml = string.Empty;
+    private string scaledPostIngredientsHtml = string.Empty;
+    private string recipeTitle = string.Empty;
+    private string pageTitle = "Recept";
+    private bool isLoading = true;
+    private string? errorMessage = null;
+    private int defaultServings = 1;
+    private int currentServings = 1;
+    private string cookTime = string.Empty;
+    private bool isServingsDropdownOpen = false;
+    private List<string> recipeCategories = new();
+    private List<string> highlightedCategories = new();
+    private List<string> secondaryCategories = new();
+    private List<string> ingredientTags = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadRecipe();
+    }
+
+    private async Task LoadRecipe()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            recipeTitle = string.Empty;
+            pageTitle = "Recept";
+            defaultServings = 1;
+            currentServings = 1;
+            cookTime = string.Empty;
+            recipeCategories = new();
+            highlightedCategories = new();
+            secondaryCategories = new();
+            ingredientTags = new();
+
+            // Construct the path to the markdown file
+            var markdownPath = $"recipes/{Slug}.md";
+
+            // Fetch the markdown content
+            var markdown = await Http.GetStringAsync(markdownPath);
+
+            // Strip YAML frontmatter and extract title
+            var markdownWithoutFrontmatter = markdown;
+            var frontmatterMatch = Regex.Match(markdown, @"^---\s*\n(.*?)\n---\s*\n", RegexOptions.Singleline);
+
+            if (frontmatterMatch.Success)
+            {
+                // Extract title from frontmatter
+                var frontmatter = frontmatterMatch.Groups[1].Value;
+                var titleMatch = Regex.Match(frontmatter, @"title:\s*[""'](.+?)[""']");
+                if (titleMatch.Success)
+                {
+                    recipeTitle = titleMatch.Groups[1].Value;
+                    pageTitle = recipeTitle + " - Recept";
+                }
+
+                // Extract default servings
+                var servingsMatch = Regex.Match(frontmatter, @"servings:\s*(\d+)");
+                if (servingsMatch.Success && int.TryParse(servingsMatch.Groups[1].Value, out var s))
+                {
+                    defaultServings = s;
+                    currentServings = s;
+                }
+
+                recipeCategories = CategoryDefinitions.NormalizeMany(ParseFrontmatterList(frontmatter, "categories"));
+                ingredientTags = ParseFrontmatterList(frontmatter, "ingredients");
+
+                // Backwards compatibility for old frontmatter: freezable: true
+                var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
+                var isFreezable = freezableMatch.Success &&
+                                 string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
+                if (isFreezable && !recipeCategories.Contains("Frysbara"))
+                {
+                    recipeCategories.Add("Frysbara");
+                }
+
+                highlightedCategories = CategoryDefinitions.HighlightedCategoryOrder
+                    .Where(highlight => recipeCategories.Contains(highlight))
+                    .ToList();
+
+                if (highlightedCategories.Any(category =>
+                    string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
+                {
+                    highlightedCategories = highlightedCategories
+                        .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
+                secondaryCategories = recipeCategories
+                    .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
+                    .ToList();
+
+                // Extract cook time
+                var cookTimeMatch = Regex.Match(frontmatter, @"cookTime:\s*[""']?(.+?)[""']?\s*$", RegexOptions.Multiline);
+                cookTime = cookTimeMatch.Success ? cookTimeMatch.Groups[1].Value.Trim() : string.Empty;
+
+                // Remove frontmatter from markdown
+                markdownWithoutFrontmatter = markdown.Substring(frontmatterMatch.Length);
+            }
+
+            // Fallback: extract first H1 if no frontmatter title
+            if (string.IsNullOrEmpty(recipeTitle))
+            {
+                var h1Match = Regex.Match(markdownWithoutFrontmatter, @"^#\s+(.+)$", RegexOptions.Multiline);
+                if (h1Match.Success)
+                {
+                    recipeTitle = h1Match.Groups[1].Value.Trim();
+                    pageTitle = recipeTitle + " - Recept";
+                    // Remove the H1 from markdown since we'll display it separately
+                    markdownWithoutFrontmatter = Regex.Replace(markdownWithoutFrontmatter, @"^#\s+.+$", "", RegexOptions.Multiline).TrimStart();
+                }
+                else
+                {
+                    recipeTitle = Slug.Replace("-", " ");
+                    pageTitle = recipeTitle + " - Recept";
+                }
+            }
+
+            // Convert markdown to HTML using Markdig
+            var fullHtml = Markdown.ToHtml(markdownWithoutFrontmatter, pipeline);
+
+            // Make task-list checkboxes interactive (Markdig marks them disabled)
+            fullHtml = fullHtml.Replace("disabled=\"disabled\" type=\"checkbox\"", "type=\"checkbox\"");
+
+            // Inject unique ids + matching <label class="step-circle"> elements so the
+            // CSS :checked + label sibling selector works and step numbers show in circles.
+            fullHtml = InjectStepCircleLabels(fullHtml);
+
+            // Split HTML into pre-ingredients, the ingredients section, and post-ingredients.
+            // The ingredients section is the <h2>Ingredienser</h2> block up to (not including)
+            // the next <h2> or end of content.
+            var ingredientsSplit = Regex.Match(
+                fullHtml,
+                @"(?s)(<h2[^>]*>\s*Ingredienser\s*</h2>.*?)(?=<h2[\s>]|$)",
+                RegexOptions.IgnoreCase);
+
+            if (ingredientsSplit.Success)
+            {
+                preIngredientsHtml = fullHtml.Substring(0, ingredientsSplit.Index);
+
+                // Split the ingredients block into the <h2> heading and the list below it
+                var raw = ingredientsSplit.Value;
+                var headingEnd = raw.IndexOf("</h2>") + "</h2>".Length;
+                ingredientsHeadingHtml = raw.Substring(0, headingEnd);
+                ingredientsListHtml = raw.Substring(headingEnd);
+                scaledIngredientsListHtml = ingredientsListHtml;
+
+                rawPostIngredientsHtml = fullHtml.Substring(ingredientsSplit.Index + ingredientsSplit.Length);
+                scaledPostIngredientsHtml = rawPostIngredientsHtml;
+            }
+            else
+            {
+                preIngredientsHtml = fullHtml;
+                ingredientsHeadingHtml = string.Empty;
+                ingredientsListHtml = string.Empty;
+                scaledIngredientsListHtml = string.Empty;
+                rawPostIngredientsHtml = string.Empty;
+                scaledPostIngredientsHtml = string.Empty;
+            }
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = $"Kunde inte hitta receptet '{Slug}'. Kontrollera att filen finns i recept-mappen.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ett fel uppstod: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static readonly int[] ValidServings = { 1, 2, 3, 4, 5, 6, 8, 10, 12 };
+    private static readonly int MaxServings = ValidServings.Max();
+
+    private void IncrementServings()
+    {
+        var next = ValidServings.FirstOrDefault(v => v > currentServings);
+        if (next > 0) SetServings(next);
+    }
+
+    private void DecrementServings()
+    {
+        var prev = ValidServings.LastOrDefault(v => v < currentServings);
+        if (prev > 0) SetServings(prev);
+    }
+
+    private void ToggleServingsDropdown() => isServingsDropdownOpen = !isServingsDropdownOpen;
+    private void CloseServingsDropdown() => isServingsDropdownOpen = false;
+
+    private void SelectServings(int value)
+    {
+        SetServings(value);
+        isServingsDropdownOpen = false;
+    }
+
+    private void OnServingsSelectChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var v))
+            SetServings(v);
+    }
+
+    private void SetServings(int value)
+    {
+        currentServings = Math.Clamp(value, 1, MaxServings);
+        var factor = (double)currentServings / defaultServings;
+        scaledIngredientsListHtml = ScaleIngredientHtml(ingredientsListHtml, factor);
+        scaledPostIngredientsHtml = ScaleStepsHtml(rawPostIngredientsHtml, factor);
+    }
+
+    private static string ScaleStepsHtml(string html, double factor)
+    {
+        if (Math.Abs(factor - 1.0) < 0.0001) return html;
+
+        // Only scale numbers inside <strong> tags — ingredients are always bolded in steps
+        return Regex.Replace(
+            html,
+            @"(?s)<strong>(.*?)</strong>",
+            m =>
+            {
+                var scaled = Regex.Replace(m.Groups[1].Value, @"\d+(?:[.,]\d+)?", nm =>
+                {
+                    var numStr = nm.Value.Replace(',', '.');
+                    if (double.TryParse(numStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var num))
+                        return FormatScaledNumber(num * factor);
+                    return nm.Value;
+                });
+                return $"<strong>{scaled}</strong>";
+            });
+    }
+
+    private static string ScaleIngredientHtml(string html, double factor)
+    {
+        if (Math.Abs(factor - 1.0) < 0.0001) return html;
+
+        return Regex.Replace(
+            html,
+            @"(?s)(</label>)(.*?)(</li>)",
+            m =>
+            {
+                var scaled = Regex.Replace(m.Groups[2].Value, @"\d+(?:[.,]\d+)?", nm =>
+                {
+                    var numStr = nm.Value.Replace(',', '.');
+                    if (double.TryParse(numStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var num))
+                        return FormatScaledNumber(num * factor);
+                    return nm.Value;
+                });
+                return m.Groups[1].Value + scaled + m.Groups[3].Value;
+            });
+    }
+
+    private static string FormatScaledNumber(double value)
+    {
+        if (value == Math.Floor(value))
+            return ((long)value).ToString();
+
+        var rounded = Math.Round(value, 1);
+        if (rounded == Math.Floor(rounded))
+            return ((long)rounded).ToString();
+        return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)
+            .Replace('.', ',');
+    }
+
+    private static List<string> ParseFrontmatterList(string frontmatter, string key)
+    {
+        var listMatch = Regex.Match(
+            frontmatter,
+            $@"{Regex.Escape(key)}:\s*\n((?:\s+-\s+.+\n?)+)",
+            RegexOptions.Multiline);
+
+        if (!listMatch.Success)
+        {
+            return [];
+        }
+
+        return Regex.Matches(listMatch.Groups[1].Value, @"-\s+(.+)")
+            .Select(m => m.Groups[1].Value.Trim())
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToList();
+    }
+
+    private static string GetCategoryBadgeClass(string category)
+    {
+        if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recipe-badge recipe-badge--green";
+        }
+
+        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recipe-badge recipe-badge--freezable";
+        }
+
+        return "recipe-badge";
+    }
+
+    private static string GetCategoryLink(string category)
+    {
+        return $"/categories?category={Uri.EscapeDataString(category)}";
+    }
+
+    private static string GetIngredientLink(string ingredient)
+    {
+        return $"/ingredients?ingredient={Uri.EscapeDataString(ingredient)}";
+    }
+
+    private static string InjectStepCircleLabels(string html)
+    {
+        // Each checkbox gets a unique id; a <label class="step-circle"> is inserted right
+        // after it so the CSS adjacent-sibling rule (input:checked + label) can style it.
+        int stepIndex = 0;
+        return Regex.Replace(
+            html,
+            @"<li class=""task-list-item""><input type=""checkbox""([^>]*)>",
+            m =>
+            {
+                stepIndex++;
+                var id = $"step-{stepIndex}";
+                var attrs = m.Groups[1].Value;
+                return $"<li class=\"task-list-item\"><input type=\"checkbox\" id=\"{id}\"{attrs}>" +
+                       $"<label class=\"step-circle\" for=\"{id}\"></label>";
+            });
+    }
+}
+

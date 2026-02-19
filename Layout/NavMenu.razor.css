@@ -1,34 +1,206 @@
+/* ---------------------------------------------------------
+   Site header
+--------------------------------------------------------- */
+
 .site-header {
-    text-align: center;
-    padding: 1.5rem 0;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e8e8e8;
+    min-height: 55.95px;
+    position: relative;
 }
 
-.site-header h1 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 600;
+.site-header .wrapper {
+    border-top: 5px solid #b58900;
 }
 
-.site-header a {
+.site-title {
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 54px;
+    letter-spacing: -1px;
+    margin-bottom: 0;
+    float: left;
+}
+
+.site-title,
+.site-title:visited {
+    color: #424242;
+}
+
+.site-title:hover {
     text-decoration: none;
-    color: inherit;
 }
+
+/* ---------------------------------------------------------
+   Site nav
+--------------------------------------------------------- */
 
 .site-nav {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    float: right;
+    line-height: 54px;
+    position: relative;
 }
 
-.site-nav a {
-    text-decoration: none;
-    font-weight: 500;
+.site-nav .menu-icon {
+    display: none;
+}
+
+.site-nav .nav-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.site-nav .menu-backdrop {
+    display: none;
+}
+
+.site-nav .trigger {
+    display: inline-flex;
+    align-items: center;
+}
+
+.site-nav .page-link {
+    color: #111;
+    line-height: 1.5;
+}
+
+.site-nav .page-link:visited {
+    color: #111;
+}
+
+.site-nav .page-link:not(:last-child) {
+    margin-right: 20px;
+}
+
+.nav-search-form {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 16px;
+    height: 2.15rem;
+    border: 1px solid #d8ccbb;
+    border-radius: 999px;
+    background: #fff;
+    vertical-align: middle;
+}
+
+.nav-search-input {
+    border: 0;
+    outline: none;
+    background: transparent;
+    padding: 0 0.8rem;
+    width: 14rem;
+    min-width: 0;
+    font: inherit;
+    font-size: 0.92rem;
+    color: #424242;
+}
+
+.nav-search-input::placeholder {
+    color: #8a8174;
+}
+
+.nav-search-submit {
+    border: 0;
+    background: transparent;
+    height: 100%;
+    width: 2.25rem;
+    border-top-right-radius: 999px;
+    border-bottom-right-radius: 999px;
+    color: #60594e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.nav-search-submit:hover {
     color: #3a6ea5;
 }
 
-.site-nav a.active {
-    text-decoration: underline;
+.nav-search-submit svg {
+    display: block;
+}
+
+@media screen and (max-width: 768px) {
+    .site-nav {
+        position: absolute;
+        top: 9px;
+        right: 15px;
+        background-color: #faf7f0;
+        border: 1px solid #e8e8e8;
+        border-radius: 5px;
+        text-align: right;
+        z-index: 25;
+    }
+
+    .site-nav .nav-toggle {
+        display: block;
+        float: right;
+        width: 36px;
+        height: 36px;
+        z-index: 2;
+        cursor: pointer;
+    }
+
+    .site-nav .menu-icon {
+        display: block;
+        float: right;
+        width: 36px;
+        height: 26px;
+        line-height: 0;
+        padding-top: 10px;
+        text-align: center;
+    }
+
+    .site-nav .menu-icon > svg {
+        fill: #424242;
+    }
+
+    .site-nav .trigger {
+        clear: both;
+        display: none;
+    }
+
+    .site-nav.menu-open .trigger {
+        display: block;
+        padding-bottom: 5px;
+        position: relative;
+        z-index: 26;
+    }
+
+    .site-nav.menu-open .menu-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 24;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        cursor: default;
+    }
+
+    .site-nav .page-link {
+        display: block;
+        padding: 5px 10px;
+        margin-left: 20px;
+    }
+
+    .nav-search-form {
+        display: flex;
+        margin: 10px 10px 8px 20px;
+        width: calc(100% - 30px);
+        height: 2.3rem;
+    }
+
+    .nav-search-input {
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .site-nav .page-link:not(:last-child) {
+        margin-right: 0;
+    }
 }
