@@ -13,7 +13,7 @@ else if (errorMessage != null)
 {
     <h3>Hoppsan!</h3>
     <p>@errorMessage</p>
-    <p><a href="/">Tillbaka till startsidan</a></p>
+    <p><a href="./">Tillbaka till startsidan</a></p>
 }
 else
 {
@@ -425,12 +425,12 @@ else
 
     private static string GetCategoryLink(string category)
     {
-        return $"/categories?category={Uri.EscapeDataString(category)}";
+        return $"categories?category={Uri.EscapeDataString(category)}";
     }
 
     private static string GetIngredientLink(string ingredient)
     {
-        return $"/ingredients?ingredient={Uri.EscapeDataString(ingredient)}";
+        return $"ingredients?ingredient={Uri.EscapeDataString(ingredient)}";
     }
 
     private static string InjectStepCircleLabels(string html)

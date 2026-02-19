@@ -25,7 +25,7 @@
 				<ul class="home-list">
 					@foreach (var recipe in favoriteRecipes)
 					{
-						<li><a href="/recipe/@recipe.Slug">@recipe.Title</a></li>
+						<li><a href="recipe/@recipe.Slug">@recipe.Title</a></li>
 					}
 				</ul>
 			}
@@ -42,7 +42,7 @@
 				<ul class="home-list">
 					@foreach (var recipe in recentRecipes)
 					{
-						<li><a href="/recipe/@recipe.Slug">@recipe.Title</a></li>
+						<li><a href="recipe/@recipe.Slug">@recipe.Title</a></li>
 					}
 				</ul>
 			}

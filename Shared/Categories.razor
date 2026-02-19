@@ -41,7 +41,7 @@ else
                     @foreach (var recipe in filteredRecipes.OrderBy(r => r.Title))
                     {
                         <li>
-                            <a href="/recipe/@recipe.Slug">@recipe.Title</a>
+                            <a href="recipe/@recipe.Slug">@recipe.Title</a>
                         </li>
                     }
                 </ul>
