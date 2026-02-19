@@ -5,7 +5,7 @@ servings: 1
 
 categories:
   - veganskt
-  - gryta
+  - grytor
 
 ingredients:
   - vegofärs
