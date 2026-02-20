@@ -1,5 +1,6 @@
 @page "/ingredients"
 @inject RecipeService RecipeService
+@inject ISettingsStorage SettingsStorage
 
 <h1 class="ingredients-page-heading">Ingredienser</h1>
 
@@ -35,7 +36,12 @@ else
                     @foreach (var recipe in filteredRecipes.OrderBy(r => r.Title))
                     {
                         <li>
-                            <a href="recipe/@recipe.Slug">@recipe.Title</a>
+                            <a class="recipe-link-with-favorite" href="recipe/@recipe.Slug">
+                                <span class="recipe-favorite-indicator @(IsFavorite(recipe.Slug) ? "is-favorite" : "")" aria-hidden="true">
+                                    @((MarkupString)IconCatalog.FavoriteHeartSvg(18))
+                                </span>
+                                <span>@recipe.Title</span>
+                            </a>
                         </li>
                     }
                 </ul>
@@ -48,6 +54,7 @@ else
     private List<RecipeMetadata> allRecipes = new();
     private List<string> ingredients = new();
     private List<RecipeMetadata> filteredRecipes = new();
+    private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
     private string selectedIngredient = string.Empty;
     private bool isLoading = true;
 
@@ -59,6 +66,11 @@ else
         try
         {
             allRecipes = await RecipeService.GetAllRecipesAsync();
+            var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+            favoriteSlugSet = favoriteSlugs
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             ingredients = allRecipes
                 .SelectMany(recipe => recipe.Ingredients)
                 .Where(ingredient => !string.IsNullOrWhiteSpace(ingredient))
@@ -119,5 +131,10 @@ else
         }
 
         return char.ToUpper(ingredient[0]) + ingredient[1..];
+    }
+
+    private bool IsFavorite(string slug)
+    {
+        return favoriteSlugSet.Contains(slug);
     }
 }

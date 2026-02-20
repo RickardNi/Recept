@@ -1,5 +1,6 @@
 @page "/categories"
 @inject RecipeService RecipeService
+@inject ISettingsStorage SettingsStorage
 
 <h1 class="categories-page-heading">Kategorier</h1>
 
@@ -17,7 +18,7 @@ else
                     <li>
                         <button class="category-item @(selectedCategory == category ? "active" : "")"
                                 @onclick="() => SelectCategory(category)">
-                            @if (CategoryIconCatalog.Icons.TryGetValue(category, out var icon))
+                            @if (IconCatalog.Icons.TryGetValue(category, out var icon))
                             {
                                 <span class="category-icon @GetIconToneClass(category)">
                                     @((MarkupString)icon)
@@ -41,7 +42,12 @@ else
                     @foreach (var recipe in filteredRecipes.OrderBy(r => r.Title))
                     {
                         <li>
-                            <a href="recipe/@recipe.Slug">@recipe.Title</a>
+                            <a class="recipe-link-with-favorite" href="recipe/@recipe.Slug">
+                                <span class="recipe-favorite-indicator @(IsFavorite(recipe.Slug) ? "is-favorite" : "")" aria-hidden="true">
+                                    @((MarkupString)IconCatalog.FavoriteHeartSvg(18))
+                                </span>
+                                <span>@recipe.Title</span>
+                            </a>
                         </li>
                     }
                 </ul>
@@ -54,6 +60,7 @@ else
     private List<RecipeMetadata> allRecipes = new();
     private List<string> categories = new();
     private List<RecipeMetadata> filteredRecipes = new();
+    private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
     private string selectedCategory = string.Empty;
     private bool isLoading = true;
 
@@ -65,6 +72,11 @@ else
         try
         {
             allRecipes = await RecipeService.GetAllRecipesAsync();
+            var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+            favoriteSlugSet = favoriteSlugs
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             categories = allRecipes
                 .SelectMany(r => r.Categories)
                 .Select(category => category.Trim())
@@ -131,5 +143,10 @@ else
         }
 
         return string.Empty;
+    }
+
+    private bool IsFavorite(string slug)
+    {
+        return favoriteSlugSet.Contains(slug);
     }
 }

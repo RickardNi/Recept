@@ -2,6 +2,7 @@
 @using Markdig
 @using System.Text.RegularExpressions
 @inject HttpClient Http
+@inject ISettingsStorage SettingsStorage
 
 <PageTitle>@pageTitle</PageTitle>
 
@@ -20,28 +21,40 @@ else
     <article class="recipe">
         <div class="recipe-header">
             <h1>@recipeTitle</h1>
-            @if (!string.IsNullOrEmpty(cookTime) || highlightedCategories.Count > 0)
-            {
-                <div class="recipe-meta">
-                    @if (!string.IsNullOrEmpty(cookTime))
+            <div class="recipe-meta">
+                @if (!string.IsNullOrEmpty(cookTime))
+                {
+                    <span class="recipe-meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        @cookTime
+                    </span>
+                }
+                @foreach (var category in highlightedCategories)
+                {
+                    <a class="@GetCategoryBadgeClass(category)" href="@GetCategoryLink(category)">
+                        @if (IconCatalog.Icons.TryGetValue(category, out var icon))
+                        {
+                            @((MarkupString)icon)
+                        }
+                        @CategoryDefinitions.GetBadgeLabel(category)
+                    </a>
+                }
+                <span class="favorite-toggle-wrapper">
+                    <button
+                        type="button"
+                        class="favorite-toggle @(isFavorite ? "is-favorite" : "") @(isFavoriteAnimating ? "is-animating" : "")"
+                        @onclick="ToggleFavoriteAsync"
+                        aria-pressed="@isFavorite"
+                        aria-label="@(isFavorite ? "Ta bort från favoriter" : "Lägg till i favoriter")"
+                        title="@(isFavorite ? "Ta bort från favoriter" : "Lägg till i favoriter")">
+                        @((MarkupString)IconCatalog.FavoriteHeartSvg(24, "favorite-heart-icon"))
+                    </button>
+                    @if (showFavoriteLabel)
                     {
-                        <span class="recipe-meta-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                            @cookTime
-                        </span>
+                        <span class="favorite-status-label">@favoriteStatusLabel</span>
                     }
-                    @foreach (var category in highlightedCategories)
-                    {
-                        <a class="@GetCategoryBadgeClass(category)" href="@GetCategoryLink(category)">
-                            @if (CategoryIconCatalog.Icons.TryGetValue(category, out var icon))
-                            {
-                                @((MarkupString)icon)
-                            }
-                            @CategoryDefinitions.GetBadgeLabel(category)
-                        </a>
-                    }
-                </div>
-            }
+                </span>
+            </div>
             @((MarkupString)preIngredientsHtml)
             @if (secondaryCategories.Count > 0 || ingredientTags.Count > 0)
             {
@@ -130,6 +143,11 @@ else
     private int currentServings = 1;
     private string cookTime = string.Empty;
     private bool isServingsDropdownOpen = false;
+    private bool isFavorite = false;
+    private bool isFavoriteAnimating = false;
+    private bool showFavoriteLabel = false;
+    private string favoriteStatusLabel = string.Empty;
+    private int favoriteLabelSequence = 0;
     private List<string> recipeCategories = new();
     private List<string> highlightedCategories = new();
     private List<string> secondaryCategories = new();
@@ -285,6 +303,8 @@ else
                 rawPostIngredientsHtml = string.Empty;
                 scaledPostIngredientsHtml = string.Empty;
             }
+
+            await LoadFavoriteStateAsync();
         }
         catch (HttpRequestException)
         {
@@ -302,6 +322,53 @@ else
 
     private static readonly int[] ValidServings = { 1, 2, 3, 4, 5, 6, 8, 10, 12 };
     private static readonly int MaxServings = ValidServings.Max();
+
+    private async Task LoadFavoriteStateAsync()
+    {
+        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+        isFavorite = favoriteSlugs.Contains(Slug, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task ToggleFavoriteAsync()
+    {
+        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+
+        favoriteSlugs = favoriteSlugs
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var existingFavorite = favoriteSlugs
+            .FirstOrDefault(slug => string.Equals(slug, Slug, StringComparison.OrdinalIgnoreCase));
+
+        if (existingFavorite is null)
+        {
+            favoriteSlugs.Add(Slug);
+            isFavorite = true;
+        }
+        else
+        {
+            favoriteSlugs.Remove(existingFavorite);
+            isFavorite = false;
+        }
+
+        await SettingsStorage.SaveSettingAsync(SessionStorageSettings.FavoriteRecipeSlugs, favoriteSlugs);
+
+        isFavoriteAnimating = true;
+        favoriteStatusLabel = isFavorite ? "Sparad som favorit" : "Borttagen från favoriter";
+        showFavoriteLabel = true;
+        var currentLabelSequence = ++favoriteLabelSequence;
+        StateHasChanged();
+        await Task.Delay(260);
+        isFavoriteAnimating = false;
+        StateHasChanged();
+
+        await Task.Delay(1100);
+        if (currentLabelSequence == favoriteLabelSequence)
+        {
+            showFavoriteLabel = false;
+            StateHasChanged();
+        }
+    }
 
     private void IncrementServings()
     {

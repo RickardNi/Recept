@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject RecipeService RecipeService
+@inject ISettingsStorage SettingsStorage
 
 <PageTitle>Recept</PageTitle>
 
@@ -14,22 +15,25 @@
 	}
 	else
 	{
-		<section class="home-highlights" aria-labelledby="home-favorites-heading">
-			<h1 id="home-favorites-heading">Favoriter</h1>
-			@if (favoriteRecipes.Count == 0)
-			{
-				<p>Inga favoriter ännu.</p>
-			}
-			else
-			{
+		@if (favoriteRecipes.Count > 0)
+		{
+			<section class="home-highlights" aria-labelledby="home-favorites-heading">
+				<h1 id="home-favorites-heading">Favoriter</h1>
 				<ul class="home-list">
 					@foreach (var recipe in favoriteRecipes)
 					{
-						<li><a href="recipe/@recipe.Slug">@recipe.Title</a></li>
+						<li>
+							<a class="recipe-link-with-favorite" href="recipe/@recipe.Slug">
+								<span class="recipe-favorite-indicator is-favorite" aria-hidden="true">
+									@((MarkupString)IconCatalog.FavoriteHeartSvg(18))
+								</span>
+								<span>@recipe.Title</span>
+							</a>
+						</li>
 					}
 				</ul>
-			}
-		</section>
+			</section>
+		}
 
 		<section class="home-highlights" aria-labelledby="home-recent-heading">
 			<h1 id="home-recent-heading">Senast tillagda</h1>
@@ -42,7 +46,14 @@
 				<ul class="home-list">
 					@foreach (var recipe in recentRecipes)
 					{
-						<li><a href="recipe/@recipe.Slug">@recipe.Title</a></li>
+						<li>
+							<a class="recipe-link-with-favorite" href="recipe/@recipe.Slug">
+								<span class="recipe-favorite-indicator @(IsFavorite(recipe.Slug) ? "is-favorite" : "")" aria-hidden="true">
+									@((MarkupString)IconCatalog.FavoriteHeartSvg(18))
+								</span>
+								<span>@recipe.Title</span>
+							</a>
+						</li>
 					}
 				</ul>
 			}
@@ -55,13 +66,9 @@
 </section>
 
 @code {
-	private static readonly string[] FavoriteSlugs =
-	[
-		"kramig-vegofarsgryta-med-spiskummin"
-	];
-
 	private List<RecipeMetadata> favoriteRecipes = new();
 	private List<RecipeMetadata> recentRecipes = new();
+	private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
 	private bool isLoading = true;
 
 	protected override async Task OnInitializedAsync()
@@ -69,18 +76,19 @@
 		try
 		{
 			var allRecipes = await RecipeService.GetAllRecipesAsync();
+			var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+			favoriteSlugSet = favoriteSlugs
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+			var favoriteOrder = favoriteSlugs
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.Select((slug, index) => new { slug, index })
+				.ToDictionary(x => x.slug, x => x.index, StringComparer.OrdinalIgnoreCase);
 
 			favoriteRecipes = allRecipes
-				.Where(recipe => FavoriteSlugs.Contains(recipe.Slug))
+				.Where(recipe => favoriteOrder.ContainsKey(recipe.Slug))
+				.OrderBy(recipe => favoriteOrder[recipe.Slug])
 				.ToList();
-
-			if (favoriteRecipes.Count == 0)
-			{
-				favoriteRecipes = allRecipes
-					.OrderBy(recipe => recipe.Title)
-					.Take(3)
-					.ToList();
-			}
 
 			recentRecipes = allRecipes
 				.OrderByDescending(recipe => recipe.Created ?? DateOnly.MinValue)
@@ -91,6 +99,11 @@
 		{
 			isLoading = false;
 		}
+	}
+
+	private bool IsFavorite(string slug)
+	{
+		return favoriteSlugSet.Contains(slug);
 	}
 }
 
