@@ -1,0 +1,193 @@
+@page "/recipes"
+@page "/recipes/{ViewMode}"
+@inject RecipeService RecipeService
+@inject ISettingsStorage SettingsStorage
+
+<PageTitle>@pageTitle</PageTitle>
+
+<section class="list-recipes-page">
+    <h1>@headingTitle</h1>
+
+    <div class="list-recipes-tools">
+        <input class="list-recipes-filter"
+               type="search"
+               value="@quickFilter"
+               @oninput="OnQuickFilterChanged"
+               placeholder="Filtrera på titel eller kategori..."
+               aria-label="Filtrera recept" />
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Laddar recept...</p>
+    }
+    else if (displayedRecipes.Count == 0)
+    {
+        @if (showFavoritesOnly && favoriteRecipeCount == 0)
+        {
+            <p>Du har inga favoritmarkerade recept ännu.</p>
+            <p><a href="recipes">Visa alla recept</a></p>
+        }
+        else if (!string.IsNullOrWhiteSpace(quickFilter))
+        {
+            <p>Inga recept matchade "@quickFilter".</p>
+        }
+        else
+        {
+            <p>Inga recept hittades.</p>
+        }
+    }
+    else
+    {
+        <ul class="list-recipes-list">
+            @foreach (var recipe in displayedRecipes)
+            {
+                var orderedCategories = GetOrderedCategories(recipe.Categories);
+
+                <li class="list-recipes-row">
+                    <a class="recipe-link-with-favorite" href="recipe/@recipe.Slug">
+                        <span class="recipe-favorite-indicator @(IsFavorite(recipe.Slug) ? "is-favorite" : "")" aria-hidden="true">
+                            @((MarkupString)IconCatalog.FavoriteHeartSvg(18))
+                        </span>
+                        <span>@recipe.Title</span>
+                    </a>
+
+                    <div class="list-recipes-badges">
+                        @foreach (var category in orderedCategories.Highlighted)
+                        {
+                            <a class="@GetCategoryBadgeClass(category)" href="@GetCategoryLink(category)">
+                                @if (IconCatalog.Icons.TryGetValue(category, out var icon))
+                                {
+                                    @((MarkupString)icon)
+                                }
+                                @CategoryDefinitions.GetBadgeLabel(category)
+                            </a>
+                        }
+
+                        @foreach (var category in orderedCategories.Secondary)
+                        {
+                            <a class="recipe-tag" href="@GetCategoryLink(category)">@category</a>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public string? ViewMode { get; set; }
+
+    private bool isLoading = true;
+    private bool showFavoritesOnly;
+    private string pageTitle = "Alla recept";
+    private string headingTitle = "Alla recept";
+    private string quickFilter = string.Empty;
+    private List<RecipeMetadata> allRecipes = new();
+    private List<RecipeMetadata> displayedRecipes = new();
+    private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
+    private int favoriteRecipeCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            allRecipes = await RecipeService.GetAllRecipesAsync();
+            var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+            favoriteSlugSet = favoriteSlugs
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            ApplyFilter();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        showFavoritesOnly = string.Equals(ViewMode, "favorites", StringComparison.OrdinalIgnoreCase);
+        pageTitle = showFavoritesOnly ? "Favoriter" : "Alla recept";
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        var baseQuery = showFavoritesOnly
+            ? allRecipes.Where(recipe => favoriteSlugSet.Contains(recipe.Slug))
+            : allRecipes;
+
+        favoriteRecipeCount = allRecipes.Count(recipe => favoriteSlugSet.Contains(recipe.Slug));
+
+        if (!string.IsNullOrWhiteSpace(quickFilter))
+        {
+            var query = quickFilter.Trim();
+            baseQuery = baseQuery.Where(recipe =>
+                recipe.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                recipe.Categories.Any(category => category.Contains(query, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        displayedRecipes = baseQuery
+            .OrderBy(recipe => recipe.Title, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+        headingTitle = $"{pageTitle} ({displayedRecipes.Count})";
+    }
+
+    private void OnQuickFilterChanged(ChangeEventArgs e)
+    {
+        quickFilter = e.Value?.ToString() ?? string.Empty;
+        ApplyFilter();
+    }
+
+    private static OrderedCategories GetOrderedCategories(List<string> categories)
+    {
+        var highlighted = CategoryDefinitions.HighlightedCategoryOrder
+            .Where(highlight => categories.Contains(highlight, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+
+        if (highlighted.Any(category => string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
+        {
+            highlighted = highlighted
+                .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        var secondary = categories
+            .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
+            .ToList();
+
+        return new OrderedCategories(highlighted, secondary);
+    }
+
+    private static string GetCategoryBadgeClass(string category)
+    {
+        if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recipe-badge recipe-badge--green";
+        }
+
+        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recipe-badge recipe-badge--freezable";
+        }
+
+        return "recipe-badge";
+    }
+
+    private static string GetCategoryLink(string category)
+    {
+        return $"categories?category={Uri.EscapeDataString(category)}";
+    }
+
+    private bool IsFavorite(string slug)
+    {
+        return favoriteSlugSet.Contains(slug);
+    }
+
+    private sealed record OrderedCategories(List<string> Highlighted, List<string> Secondary);
+}
