@@ -12,6 +12,14 @@
 ## CSS
 
 - Prefer scoped `.razor.css` files co-located with the component over adding styles to `app.css`. Only use `app.css` for truly global styles (resets, typography, layout, utilities).
+- Use `768px` as the single breakpoint for media queries unless explicitly instructed otherwise.
+- Write CSS with desktop/wider view as the default, and treat mobile styles as the exception via `@media (max-width: 768px)`.
+- Keep media-query style and breakpoint usage consistent across all CSS files.
+
+## SVG Icons
+
+- Centralize SVG icons in `Shared/IconCatalog.cs`.
+- Avoid inline SVG markup in `.razor` files unless there is a clear technical reason not to use `IconCatalog`.
 
 ## Development Server
 
