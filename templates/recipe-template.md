@@ -12,7 +12,7 @@ categories:
   - Indiskt
   - Matlådor
   - Middag
-  - Efterrätt
+  - Efterrätter
 
 ingredients:
   - bacon

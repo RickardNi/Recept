@@ -6,7 +6,7 @@ cookTime: "75 minuter"
 
 categories:
   - Vegetariskt
-  - Efterrätt
+  - Efterrätter
 
 ingredients:
   - ägg

@@ -186,7 +186,11 @@ else
                     currentServings = s;
                 }
 
-                recipeCategories = CategoryDefinitions.NormalizeMany(ParseFrontmatterList(frontmatter, "categories"));
+                recipeCategories = ParseFrontmatterList(frontmatter, "categories")
+                    .Select(category => category.Trim())
+                    .Where(category => !string.IsNullOrWhiteSpace(category))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
                 ingredientTags = ParseFrontmatterList(frontmatter, "ingredients");
 
                 // Backwards compatibility for old frontmatter: freezable: true

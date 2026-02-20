@@ -67,9 +67,9 @@ else
             allRecipes = await RecipeService.GetAllRecipesAsync();
             categories = allRecipes
                 .SelectMany(r => r.Categories)
-                .Select(CategoryDefinitions.Normalize)
+                .Select(category => category.Trim())
                 .Where(c => !string.IsNullOrWhiteSpace(c))
-                .Distinct()
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(c => c)
                 .ToList();
 
@@ -98,7 +98,7 @@ else
             return;
         }
 
-        var requested = CategoryDefinitions.Normalize(CategoryQuery ?? string.Empty);
+        var requested = (CategoryQuery ?? string.Empty).Trim();
         var match = categories.FirstOrDefault(category =>
             string.Equals(category, requested, StringComparison.OrdinalIgnoreCase));
 
@@ -125,8 +125,7 @@ else
             return "category-icon--vegetariskt";
         }
 
-        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(category, "Frysbar", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase))
         {
             return "category-icon--frysbara";
         }

@@ -11,32 +11,6 @@ public static class CategoryDefinitions
         "Frysbara"
     ];
 
-    public static string Normalize(string category)
-    {
-        if (string.IsNullOrWhiteSpace(category))
-        {
-            return string.Empty;
-        }
-
-        var value = category.Trim();
-
-        if (string.Equals(value, "Frysbar", StringComparison.OrdinalIgnoreCase))
-        {
-            return "Frysbara";
-        }
-
-        return value;
-    }
-
-    public static List<string> NormalizeMany(IEnumerable<string> categories)
-    {
-        return categories
-            .Select(Normalize)
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
-
     public static string GetBadgeLabel(string category)
     {
         if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase))

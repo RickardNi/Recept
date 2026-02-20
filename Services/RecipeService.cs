@@ -79,9 +79,9 @@ public class RecipeService(HttpClient http)
             {
                 metadata.Categories = Regex.Matches(categoriesMatch.Groups[1].Value, @"-\s+(.+)")
                     .Select(m => m.Groups[1].Value.Trim())
+                    .Where(category => !string.IsNullOrWhiteSpace(category))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-
-                metadata.Categories = CategoryDefinitions.NormalizeMany(metadata.Categories);
             }
 
             // Backwards compatibility for old frontmatter
