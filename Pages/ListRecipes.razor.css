@@ -81,6 +81,12 @@
     .list-recipes-row {
         grid-template-columns: 1fr;
         align-items: start;
+        gap: 0.45rem;
+        padding: 0.55rem 0 0.72rem;
+    }
+
+    .recipe-favorite-indicator:not(.is-favorite) {
+        display: none;
     }
 
     .list-recipes-filter {
