@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Riktigt bra pajdeg"
+created: 2026-02-19
 servings: 4
 
 categories:

@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Walles våfflor"
+created: 2026-02-19
 servings: 4
 
 categories:

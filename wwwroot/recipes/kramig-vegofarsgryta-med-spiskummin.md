@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Krämig vegofärsgryta med spiskummin"
+created: 2026-02-19
 servings: 1
 cookTime: "15 minuter"
 

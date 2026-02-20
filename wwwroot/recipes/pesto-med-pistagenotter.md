@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Pesto med pistagenötter"
+created: 2026-02-19
 servings: 3
 
 categories:

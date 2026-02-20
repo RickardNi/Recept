@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Potatisgratäng"
+created: 2026-02-19
 servings: 8
 cookTime: "60 minuter"
 

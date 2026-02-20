@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Pasta med svampsås"
+created: 2026-02-20
 servings: 4
 cookTime: "30 minuter"
 

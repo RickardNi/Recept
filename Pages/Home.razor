@@ -83,8 +83,8 @@
 			}
 
 			recentRecipes = allRecipes
-				.TakeLast(5)
-				.Reverse()
+				.OrderByDescending(recipe => recipe.Created ?? DateOnly.MinValue)
+				.Take(5)
 				.ToList();
 		}
 		finally

@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Riktigt jävla seg kladdkaka"
+created: 2026-02-20
 servings: 4
 cookTime: "75 minuter"
 

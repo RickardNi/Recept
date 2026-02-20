@@ -1,6 +1,7 @@
 ---
 layout: recipe
 title: "Palak Paneer med halloumi"
+created: 2026-02-19
 servings: 4
 cookTime: "25 minuter"
 

@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Recept.Models;
-using Recept.Shared;
 
 namespace Recept.Services;
 
@@ -53,7 +53,7 @@ public class RecipeService(HttpClient http)
         var metadata = new RecipeMetadata { Slug = slug };
 
         // Check for YAML frontmatter
-        var frontmatterMatch = Regex.Match(markdown, @"^---\s*\n(.*?)\n---", RegexOptions.Singleline);
+        var frontmatterMatch = Regex.Match(markdown, @"^---\s*\r?\n(.*?)\r?\n---", RegexOptions.Singleline);
 
         if (frontmatterMatch.Success)
         {
@@ -64,6 +64,14 @@ public class RecipeService(HttpClient http)
             if (titleMatch.Success)
             {
                 metadata.Title = titleMatch.Groups[1].Value;
+            }
+
+            // Parse created date
+            var createdMatch = Regex.Match(frontmatter, @"created:\s*[\""']?(\d{4}-\d{2}-\d{2})[\""']?");
+            if (createdMatch.Success &&
+                DateOnly.TryParseExact(createdMatch.Groups[1].Value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var created))
+            {
+                metadata.Created = created;
             }
 
             // Parse servings
