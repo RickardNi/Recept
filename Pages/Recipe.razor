@@ -47,7 +47,7 @@ else
                         aria-pressed="@isFavorite"
                         aria-label="@(isFavorite ? "Ta bort från favoriter" : "Lägg till i favoriter")"
                         title="@(isFavorite ? "Ta bort från favoriter" : "Lägg till i favoriter")">
-                        @((MarkupString)IconCatalog.FavoriteHeartSvg(24, "favorite-heart-icon"))
+                        @((MarkupString)IconCatalog.FavoriteHeartSvg(24, "favorite-heart-icon", isFavorite))
                     </button>
                     @if (showFavoriteLabel)
                     {

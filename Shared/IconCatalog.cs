@@ -2,7 +2,7 @@ namespace Recept.Shared;
 
 public static class IconCatalog
 {
-    private const string FavoriteHeartPath = "M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5";
+    private const string FavoriteHeartPath = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z";
 
     public static readonly IReadOnlyDictionary<string, string> Icons = new Dictionary<string, string>
     {
@@ -16,12 +16,14 @@ public static class IconCatalog
         ["Efterrätter"] = """<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cake-slice-icon lucide-cake-slice"><path d="M16 13H3"/><path d="M16 17H3"/><path d="m7.2 7.9-3.388 2.5A2 2 0 0 0 3 12.01V20a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-8.654c0-2-2.44-6.026-6.44-8.026a1 1 0 0 0-1.082.057L10.4 5.6"/><circle cx="9" cy="7" r="2"/></svg>""",
     };
 
-    public static string FavoriteHeartSvg(int size = 24, string? cssClass = null)
+    public static string FavoriteHeartSvg(int size = 24, string? cssClass = null, bool filled = true)
     {
         var classAttribute = string.IsNullOrWhiteSpace(cssClass)
             ? string.Empty
             : $" class=\"{cssClass}\"";
 
-        return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{size}\" height=\"{size}\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"{classAttribute}><path d=\"{FavoriteHeartPath}\"/></svg>";
+        var fill = filled ? "currentColor" : "none";
+
+        return $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{size}\" height=\"{size}\" viewBox=\"0 0 24 24\" fill=\"{fill}\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"{classAttribute}><path d=\"{FavoriteHeartPath}\"/></svg>";
     }
 }
