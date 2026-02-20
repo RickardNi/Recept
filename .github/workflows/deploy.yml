@@ -34,6 +34,9 @@ jobs:
         REPO_NAME=${GITHUB_REPOSITORY#*/}
         sed -i "s/<base href=\"\/\" \/>/<base href=\"\/$REPO_NAME\/\" \/>/g" publish/wwwroot/index.html
 
+    - name: Add SPA fallback page
+      run: cp publish/wwwroot/index.html publish/wwwroot/404.html
+
     - name: Add .nojekyll file
       run: touch publish/wwwroot/.nojekyll
 
