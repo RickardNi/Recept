@@ -3,7 +3,7 @@
 ## Code Comments
 
 - Do not add comments to generated code unless the code does something unintuitive or requires explanation.
-- Never remove existing comments from the code.
+- Never remove existing comments from the code, unless they are incorrect or misleading. If you find an existing comment that is wrong, update it to be correct rather than deleting it.
 
 ## Terminal
 
@@ -16,3 +16,8 @@
 ## Development Server
 
 - The application is almost always already running via `run.bat` in a terminal. Avoid starting a new instance unless you have confirmed none is running.
+
+## Language Conventions
+
+- Keep all technical identifiers in English (e.g., variable names, method names, class names, component names, and file names).
+- Keep all user-facing display text in Swedish (e.g., labels, headings, button text, validation messages, and other UI content).
