@@ -3,6 +3,12 @@
 --------------------------------------------------------- */
 
 .page-content {
-    padding: 1rem 0.15rem 0.1rem;
+    padding: 2rem 0.15rem 0.1rem;
     flex: 1;
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 1rem;
+    }
 }
