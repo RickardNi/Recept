@@ -24,9 +24,12 @@ ingredients:
 
 Väldigt krämig och god vegofärsgryta som med havregrädde blir helt vegansk. Snabbt och lätt att slänga ihop i en liten stekpanna.
 
+**15 g tomatpuré** kan ersättas med **10 g ketchup** och **5 g soja** (ytterligare).
+
 ## Ingredienser
 - [ ] 100 g havreris
-- [ ] 10 g vitlöksolja
+- [ ] 10 g vitlöksolja  
+  _(eller 5 g olja + 0,5 vitlöksklyftor)_
 - [ ] 3 g spiskummin
 - [ ] 2 g paprikapulver
 - [ ] 15 g tomatpuré
