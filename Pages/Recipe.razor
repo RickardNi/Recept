@@ -325,13 +325,13 @@ else
 
     private async Task LoadFavoriteStateAsync()
     {
-        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(LocalStorageSettings.FavoriteRecipeSlugs) ?? [];
         isFavorite = favoriteSlugs.Contains(Slug, StringComparer.OrdinalIgnoreCase);
     }
 
     private async Task ToggleFavoriteAsync()
     {
-        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(SessionStorageSettings.FavoriteRecipeSlugs) ?? [];
+        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(LocalStorageSettings.FavoriteRecipeSlugs) ?? [];
 
         favoriteSlugs = favoriteSlugs
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -351,7 +351,7 @@ else
             isFavorite = false;
         }
 
-        await SettingsStorage.SaveSettingAsync(SessionStorageSettings.FavoriteRecipeSlugs, favoriteSlugs);
+        await SettingsStorage.SaveSettingAsync(LocalStorageSettings.FavoriteRecipeSlugs, favoriteSlugs);
 
         isFavoriteAnimating = true;
         favoriteStatusLabel = isFavorite ? "Sparad som favorit" : "Borttagen från favoriter";

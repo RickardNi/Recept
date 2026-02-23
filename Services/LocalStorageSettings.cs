@@ -1,18 +1,18 @@
-using Blazored.SessionStorage;
+using Blazored.LocalStorage;
 
 namespace Recept.Services;
 
-public class SessionStorageSettings(ISessionStorageService sessionStorageService) : ISettingsStorage
+public class LocalStorageSettings(ILocalStorageService localStorageService) : ISettingsStorage
 {
     public const string FavoriteRecipeSlugs = "favoriteRecipeSlugs";
 
-    private readonly ISessionStorageService _sessionStorageService = sessionStorageService;
+    private readonly ILocalStorageService _localStorageService = localStorageService;
 
     public async Task<T?> GetSettingAsync<T>(string key)
     {
         try
         {
-            return await _sessionStorageService.GetItemAsync<T>(key);
+            return await _localStorageService.GetItemAsync<T>(key);
         }
         catch
         {
@@ -25,7 +25,7 @@ public class SessionStorageSettings(ISessionStorageService sessionStorageService
     {
         try
         {
-            await _sessionStorageService.SetItemAsync(key, value);
+            await _localStorageService.SetItemAsync(key, value);
         }
         catch
         {
