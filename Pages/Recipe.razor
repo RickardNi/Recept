@@ -3,6 +3,8 @@
 @using System.Text.RegularExpressions
 @inject HttpClient Http
 @inject ISettingsStorage SettingsStorage
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>@pageTitle</PageTitle>
 
@@ -18,7 +20,7 @@ else if (errorMessage != null)
 }
 else
 {
-    <article class="recipe">
+    <article class="recipe" @onpointerdown="HandleWakeLockInteraction">
         <div class="recipe-header">
             <h1>@recipeTitle</h1>
             <div class="recipe-meta">
@@ -156,6 +158,47 @@ else
     protected override async Task OnParametersSetAsync()
     {
         await LoadRecipe();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("wakeLockManager.enable");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to enable wake lock: {ex.Message}");
+        }
+    }
+
+    private async Task HandleWakeLockInteraction()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("wakeLockManager.forceEnable");
+        }
+        catch
+        {
+            // Silently handle wake lock failures
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("wakeLockManager.disable");
+        }
+        catch
+        {
+            // Ignore JS errors during teardown
+        }
     }
 
     private async Task LoadRecipe()
