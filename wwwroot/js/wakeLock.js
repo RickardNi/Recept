@@ -51,7 +51,7 @@ class WakeLockManager {
     // ── Wake Lock API ────────────────────────────────────────────────
 
     async acquireNativeWakeLock() {
-        if (!this.isWakeLockSupported || this.wakeLock) return;
+        if (!this.isWakeLockSupported || this.wakeLock) return false;
 
         try {
             this.wakeLock = await navigator.wakeLock.request('screen');
@@ -60,15 +60,17 @@ class WakeLockManager {
                 this.wakeLock = null;
                 console.log('Wake Lock API released');
 
-                // Immediately try to re-acquire if page is still visible
-                if (document.visibilityState === 'visible' && this.userHasInteracted) {
+                // Re-acquire only if still requested and page is visible
+                if (this.isRequested && document.visibilityState === 'visible') {
                     setTimeout(() => this.acquireNativeWakeLock(), 500);
                 }
             });
 
             console.log('Wake Lock API acquired');
+            return true;
         } catch (err) {
             console.warn('Wake Lock API request failed:', err.message);
+            return false;
         }
     }
 
@@ -141,10 +143,10 @@ class WakeLockManager {
         if (this.keepAliveInterval) return;
 
         this.keepAliveInterval = setInterval(() => {
-            if (document.visibilityState !== 'visible') return;
+            if (!this.isRequested || document.visibilityState !== 'visible') return;
 
             // Re-acquire native wake lock if it was released
-            if (this.isWakeLockSupported && !this.wakeLock && this.userHasInteracted) {
+            if (this.isWakeLockSupported && !this.wakeLock) {
                 this.acquireNativeWakeLock();
             }
 
@@ -165,24 +167,29 @@ class WakeLockManager {
     // ── Public API ───────────────────────────────────────────────────
 
     async requestWakeLock() {
-        if (!this.isRequested || !this.userHasInteracted) return;
+        if (!this.isRequested) return;
 
-        // On iOS, ALWAYS use the video fallback – it is the only method
-        // that reliably prevents screen sleep, especially in PWA mode.
-        if (this.isIOS) {
-            this.ensureVideoFallback();
+        // The native Screen Wake Lock API does NOT require user activation
+        // on Chromium/Android – always attempt it first.
+        const nativeAcquired = await this.acquireNativeWakeLock();
+
+        // Video-based fallbacks DO require a prior user gesture (autoplay
+        // policy), so only attempt them after interaction.
+        if (this.userHasInteracted) {
+            // On iOS, ALWAYS use the video fallback – it is the only method
+            // that reliably prevents screen sleep, especially in PWA mode.
+            if (this.isIOS) {
+                this.ensureVideoFallback();
+            }
+
+            // On platforms without the API and not iOS (rare), also use video
+            if (!this.isIOS && !this.isWakeLockSupported) {
+                this.ensureVideoFallback();
+            }
         }
 
-        // Also use the native API where supported (works well on
-        // Android/Chrome; partially on iOS 16.4+).
-        await this.acquireNativeWakeLock();
-
-        // On platforms without the API and not iOS (rare), also use video
-        if (!this.isIOS && !this.isWakeLockSupported) {
-            this.ensureVideoFallback();
-        }
-
-        this.isActive = true;
+        this.isActive = nativeAcquired || this.wakeLock != null ||
+            (this.videoElement != null && !this.videoElement.paused);
         this.startKeepAlive();
     }
 
@@ -199,9 +206,7 @@ class WakeLockManager {
 
         if (document.visibilityState === 'visible') {
             // Page is visible again – re-acquire immediately
-            if (this.userHasInteracted) {
-                setTimeout(() => this.requestWakeLock(), 300);
-            }
+            setTimeout(() => this.requestWakeLock(), 300);
         } else {
             // Page hidden – release to save battery
             this.releaseWakeLock();
@@ -211,7 +216,7 @@ class WakeLockManager {
     // Convenience methods called from Blazor
     enable() {
         this.isRequested = true;
-        if (this.userHasInteracted) this.requestWakeLock();
+        this.requestWakeLock();
     }
 
     disable() {
