@@ -8,24 +8,27 @@ namespace Recept.Services;
 public class RecipeService(HttpClient http)
 {
     private readonly HttpClient _http = http;
+    private List<RecipeMetadata>? _cachedRecipes;
+    private readonly Dictionary<string, string> _markdownCache = new(StringComparer.OrdinalIgnoreCase);
 
     public async Task<List<RecipeMetadata>> GetAllRecipesAsync()
     {
+        if (_cachedRecipes is not null)
+            return _cachedRecipes;
+
         try
         {
-            // Fetch the list of recipe slugs
             var slugs = await _http.GetFromJsonAsync<List<string>>("recipes/recipes.json");
             if (slugs == null) return [];
 
             var recipes = new List<RecipeMetadata>();
 
-            // Fetch metadata for each recipe
             foreach (var slug in slugs)
             {
                 try
                 {
-                    var metadata = await GetRecipeMetadataAsync(slug);
-                    recipes.Add(metadata);
+                    var markdown = await GetRecipeMarkdownAsync(slug);
+                    recipes.Add(ParseMetadata(slug, markdown));
                 }
                 catch
                 {
@@ -34,6 +37,7 @@ public class RecipeService(HttpClient http)
                 }
             }
 
+            _cachedRecipes = recipes;
             return recipes;
         }
         catch
@@ -44,13 +48,18 @@ public class RecipeService(HttpClient http)
 
     public async Task<RecipeMetadata> GetRecipeMetadataAsync(string slug)
     {
-        var markdown = await _http.GetStringAsync($"recipes/{slug}.md");
+        var markdown = await GetRecipeMarkdownAsync(slug);
         return ParseMetadata(slug, markdown);
     }
 
     public async Task<string> GetRecipeMarkdownAsync(string slug)
     {
-        return await _http.GetStringAsync($"recipes/{slug}.md");
+        if (_markdownCache.TryGetValue(slug, out var cached))
+            return cached;
+
+        var markdown = await _http.GetStringAsync($"recipes/{slug}.md");
+        _markdownCache[slug] = markdown;
+        return markdown;
     }
 
     public static RecipeMetadata ParseMetadata(string slug, string markdown)
