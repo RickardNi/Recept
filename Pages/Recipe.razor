@@ -386,12 +386,6 @@ else
         isServingsDropdownOpen = false;
     }
 
-    private void OnServingsSelectChanged(ChangeEventArgs e)
-    {
-        if (int.TryParse(e.Value?.ToString(), out var v))
-            SetServings(v);
-    }
-
     private void SetServings(int value)
     {
         currentServings = Math.Clamp(value, 1, MaxServings);
