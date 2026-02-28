@@ -121,7 +121,7 @@ else
     {
         selectedCategory = category;
         filteredRecipes = allRecipes
-            .Where(r => r.Categories.Contains(category))
+            .Where(r => r.Categories.Contains(category, StringComparer.OrdinalIgnoreCase))
             .ToList();
     }
 
