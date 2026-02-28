@@ -48,69 +48,96 @@ public class RecipeService(HttpClient http)
         return ParseMetadata(slug, markdown);
     }
 
-    private static RecipeMetadata ParseMetadata(string slug, string markdown)
+    public async Task<string> GetRecipeMarkdownAsync(string slug)
+    {
+        return await _http.GetStringAsync($"recipes/{slug}.md");
+    }
+
+    public static RecipeMetadata ParseMetadata(string slug, string markdown)
     {
         var metadata = new RecipeMetadata { Slug = slug };
 
-        // Check for YAML frontmatter
-        var frontmatterMatch = Regex.Match(markdown, @"^---\s*\r?\n(.*?)\r?\n---", RegexOptions.Singleline);
+        var frontmatter = ExtractFrontmatter(markdown);
+        if (frontmatter is null) return metadata;
 
-        if (frontmatterMatch.Success)
+        // Parse title
+        var titleMatch = Regex.Match(frontmatter, @"title:\s*[""'](.+?)[""']");
+        if (titleMatch.Success)
         {
-            var frontmatter = frontmatterMatch.Groups[1].Value;
-
-            // Parse title
-            var titleMatch = Regex.Match(frontmatter, @"title:\s*[""'](.+?)[""']");
-            if (titleMatch.Success)
-            {
-                metadata.Title = titleMatch.Groups[1].Value;
-            }
-
-            // Parse created date
-            var createdMatch = Regex.Match(frontmatter, @"created:\s*[\""']?(\d{4}-\d{2}-\d{2})[\""']?");
-            if (createdMatch.Success &&
-                DateOnly.TryParseExact(createdMatch.Groups[1].Value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var created))
-            {
-                metadata.Created = created;
-            }
-
-            // Parse servings
-            var servingsMatch = Regex.Match(frontmatter, @"servings:\s*(\d+)");
-            if (servingsMatch.Success && int.TryParse(servingsMatch.Groups[1].Value, out int servings))
-            {
-                metadata.Servings = servings;
-            }
-
-            // Parse categories
-            var categoriesMatch = Regex.Match(frontmatter, @"categories:\s*\n((?:\s+-\s+.+\n?)+)", RegexOptions.Multiline);
-            if (categoriesMatch.Success)
-            {
-                metadata.Categories = Regex.Matches(categoriesMatch.Groups[1].Value, @"-\s+(.+)")
-                    .Select(m => m.Groups[1].Value.Trim())
-                    .Where(category => !string.IsNullOrWhiteSpace(category))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
-
-            // Backwards compatibility for old frontmatter
-            var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
-            var isFreezable = freezableMatch.Success &&
-                              string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
-            if (isFreezable && !metadata.Categories.Contains("Frysbara"))
-            {
-                metadata.Categories.Add("Frysbara");
-            }
-
-            // Parse ingredients tags
-            var ingredientsMatch = Regex.Match(frontmatter, @"ingredients:\s*\n((?:\s+-\s+.+\n?)+)", RegexOptions.Multiline);
-            if (ingredientsMatch.Success)
-            {
-                metadata.Ingredients = Regex.Matches(ingredientsMatch.Groups[1].Value, @"-\s+(.+)")
-                    .Select(m => m.Groups[1].Value.Trim())
-                    .ToList();
-            }
+            metadata.Title = titleMatch.Groups[1].Value;
         }
 
+        // Parse created date
+        var createdMatch = Regex.Match(frontmatter, @"created:\s*[\""']?(\d{4}-\d{2}-\d{2})[\""']?");
+        if (createdMatch.Success &&
+            DateOnly.TryParseExact(createdMatch.Groups[1].Value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var created))
+        {
+            metadata.Created = created;
+        }
+
+        // Parse servings
+        var servingsMatch = Regex.Match(frontmatter, @"servings:\s*(\d+)");
+        if (servingsMatch.Success && int.TryParse(servingsMatch.Groups[1].Value, out int servings))
+        {
+            metadata.Servings = servings;
+        }
+
+        // Parse cook time
+        var cookTimeMatch = Regex.Match(frontmatter, @"cookTime:\s*[""']?(.+?)[""']?\s*$", RegexOptions.Multiline);
+        if (cookTimeMatch.Success)
+        {
+            metadata.CookTime = cookTimeMatch.Groups[1].Value.Trim();
+        }
+
+        // Parse categories
+        metadata.Categories = ParseFrontmatterList(frontmatter, "categories")
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        // Backwards compatibility for old frontmatter
+        var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
+        var isFreezable = freezableMatch.Success &&
+                          string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
+        if (isFreezable && !metadata.Categories.Contains("Frysbara"))
+        {
+            metadata.Categories.Add("Frysbara");
+        }
+
+        // Parse ingredients tags
+        metadata.Ingredients = ParseFrontmatterList(frontmatter, "ingredients");
+
         return metadata;
+    }
+
+    private static readonly Regex FrontmatterRegex = new(
+        @"^---\s*\r?\n(.*?)\r?\n---",
+        RegexOptions.Singleline | RegexOptions.Compiled);
+
+    public static string? ExtractFrontmatter(string markdown)
+    {
+        var match = FrontmatterRegex.Match(markdown);
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    public static string StripFrontmatter(string markdown)
+    {
+        var match = FrontmatterRegex.Match(markdown);
+        if (!match.Success) return markdown;
+        return markdown[match.Length..].TrimStart('\r', '\n');
+    }
+
+    public static List<string> ParseFrontmatterList(string frontmatter, string key)
+    {
+        var listMatch = Regex.Match(
+            frontmatter,
+            $@"{Regex.Escape(key)}:\s*\r?\n((?:\s+-\s+.+\r?\n?)+)",
+            RegexOptions.Multiline);
+
+        if (!listMatch.Success) return [];
+
+        return Regex.Matches(listMatch.Groups[1].Value, @"-\s+(.+)")
+            .Select(m => m.Groups[1].Value.Trim())
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToList();
     }
 }

@@ -6,6 +6,7 @@ public class RecipeMetadata
     public string Title { get; set; } = string.Empty;
     public DateOnly? Created { get; set; }
     public int? Servings { get; set; }
+    public string CookTime { get; set; } = string.Empty;
     public List<string> Categories { get; set; } = [];
     public List<string> Ingredients { get; set; } = [];
 }
