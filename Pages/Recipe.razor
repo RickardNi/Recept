@@ -320,8 +320,8 @@ else
 
     private async Task LoadFavoriteStateAsync()
     {
-        var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(LocalStorageSettings.FavoriteRecipeSlugs) ?? [];
-        isFavorite = favoriteSlugs.Contains(Slug, StringComparer.OrdinalIgnoreCase);
+        var favoriteSlugs = await SettingsStorage.GetFavoriteSlugsAsync();
+        isFavorite = favoriteSlugs.Contains(Slug);
     }
 
     private async Task ToggleFavoriteAsync()

@@ -32,4 +32,12 @@ public class LocalStorageSettings(ILocalStorageService localStorageService) : IS
             // Local storage might be disabled, full, or in private browsing mode
         }
     }
+
+    public async Task<HashSet<string>> GetFavoriteSlugsAsync()
+    {
+        var slugs = await GetSettingAsync<List<string>>(FavoriteRecipeSlugs) ?? [];
+        return slugs
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
 }

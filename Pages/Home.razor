@@ -76,18 +76,10 @@
 		try
 		{
 			var allRecipes = await RecipeService.GetAllRecipesAsync();
-			var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(LocalStorageSettings.FavoriteRecipeSlugs) ?? [];
-			favoriteSlugSet = favoriteSlugs
-				.Distinct(StringComparer.OrdinalIgnoreCase)
-				.ToHashSet(StringComparer.OrdinalIgnoreCase);
-			var favoriteOrder = favoriteSlugs
-				.Distinct(StringComparer.OrdinalIgnoreCase)
-				.Select((slug, index) => new { slug, index })
-				.ToDictionary(x => x.slug, x => x.index, StringComparer.OrdinalIgnoreCase);
+			favoriteSlugSet = await SettingsStorage.GetFavoriteSlugsAsync();
 
 			favoriteRecipes = allRecipes
-				.Where(recipe => favoriteOrder.ContainsKey(recipe.Slug))
-				.OrderBy(recipe => favoriteOrder[recipe.Slug])
+				.Where(recipe => favoriteSlugSet.Contains(recipe.Slug))
 				.ToList();
 
 			recentRecipes = allRecipes

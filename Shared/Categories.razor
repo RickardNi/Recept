@@ -74,10 +74,7 @@ else
         try
         {
             allRecipes = await RecipeService.GetAllRecipesAsync();
-            var favoriteSlugs = await SettingsStorage.GetSettingAsync<List<string>>(LocalStorageSettings.FavoriteRecipeSlugs) ?? [];
-            favoriteSlugSet = favoriteSlugs
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            favoriteSlugSet = await SettingsStorage.GetFavoriteSlugsAsync();
 
             categories = allRecipes
                 .SelectMany(r => r.Categories)
