@@ -99,7 +99,7 @@ public class RecipeService(HttpClient http)
         }
 
         // Parse categories
-        metadata.Categories = ParseFrontmatterList(frontmatter, "categories")
+        var categories = ParseFrontmatterList(frontmatter, "categories")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -107,10 +107,12 @@ public class RecipeService(HttpClient http)
         var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
         var isFreezable = freezableMatch.Success &&
                           string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
-        if (isFreezable && !metadata.Categories.Contains("Frysbara"))
+        if (isFreezable && !categories.Contains("Frysbara"))
         {
-            metadata.Categories.Add("Frysbara");
+            categories.Add("Frysbara");
         }
+
+        metadata.Categories = categories;
 
         // Parse ingredients tags
         metadata.Ingredients = ParseFrontmatterList(frontmatter, "ingredients");
