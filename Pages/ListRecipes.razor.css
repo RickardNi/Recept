@@ -38,37 +38,6 @@
     border-bottom: 1px solid #e9e1d6;
 }
 
-.recipe-link-with-favorite {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-}
-
-.recipe-link-with-favorite > span:last-child {
-    overflow-wrap: anywhere;
-}
-
-.recipe-favorite-indicator {
-    width: 1.4rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #c62828;
-    opacity: 0;
-}
-
-.recipe-favorite-indicator svg {
-    width: 1.22rem;
-    height: 1.22rem;
-    fill: currentColor;
-    stroke: currentColor;
-}
-
-.recipe-favorite-indicator.is-favorite {
-    opacity: 1;
-}
-
 .list-recipes-badges {
     display: flex;
     flex-wrap: wrap;
@@ -83,10 +52,6 @@
         align-items: start;
         gap: 0.45rem;
         padding: 0.55rem 0 0.72rem;
-    }
-
-    .recipe-favorite-indicator:not(.is-favorite) {
-        display: none;
     }
 
     .list-recipes-filter {

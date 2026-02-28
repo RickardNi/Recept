@@ -27,35 +27,6 @@
     font-size: 1em;
 }
 
-.recipe-link-with-favorite {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.recipe-favorite-indicator {
-    width: 1.4rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #c62828;
-    opacity: 0;
-}
-
-.recipe-favorite-indicator svg {
-    width: 1.22rem;
-    height: 1.22rem;
-}
-
-.recipe-favorite-indicator.is-favorite {
-    opacity: 1;
-}
-
-.recipe-favorite-indicator svg {
-    fill: currentColor;
-    stroke: currentColor;
-}
-
 .visually-hidden {
     position: absolute;
     width: 1px;
