@@ -33,7 +33,7 @@ else
                 }
                 @foreach (var category in highlightedCategories)
                 {
-                    <a class="@GetCategoryBadgeClass(category)" href="@GetCategoryLink(category)">
+                    <a class="@CategoryDefinitions.GetBadgeCssClass(category)" href="@CategoryDefinitions.GetCategoryLink(category)">
                         @if (IconCatalog.Icons.TryGetValue(category, out var icon))
                         {
                             @((MarkupString)icon)
@@ -67,7 +67,7 @@ else
                             <ul class="recipe-tag-list">
                                 @foreach (var category in secondaryCategories)
                                 {
-                                    <li><a class="recipe-tag" href="@GetCategoryLink(category)">@category</a></li>
+                                    <li><a class="recipe-tag" href="@CategoryDefinitions.GetCategoryLink(category)">@category</a></li>
                                 }
                             </ul>
                         </div>
@@ -78,7 +78,7 @@ else
                             <ul class="recipe-tag-list">
                                 @foreach (var ingredient in ingredientTags)
                                 {
-                                    <li><a class="recipe-tag" href="@GetIngredientLink(ingredient)">@ingredient</a></li>
+                                    <li><a class="recipe-tag" href="@CategoryDefinitions.GetIngredientLink(ingredient)">@ingredient</a></li>
                                 }
                             </ul>
                         </div>
@@ -233,21 +233,9 @@ else
             recipeCategories = metadata.Categories;
             ingredientTags = metadata.Ingredients;
 
-            highlightedCategories = CategoryDefinitions.HighlightedCategoryOrder
-                .Where(highlight => recipeCategories.Contains(highlight))
-                .ToList();
-
-            if (highlightedCategories.Any(category =>
-                string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
-            {
-                highlightedCategories = highlightedCategories
-                    .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
-
-            secondaryCategories = recipeCategories
-                .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
-                .ToList();
+            var ordered = CategoryDefinitions.GetOrderedCategories(recipeCategories);
+            highlightedCategories = ordered.Highlighted;
+            secondaryCategories = ordered.Secondary;
 
             var markdownWithoutFrontmatter = RecipeService.StripFrontmatter(markdown);
 
@@ -465,32 +453,6 @@ else
             return ((long)rounded).ToString();
         return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)
             .Replace('.', ',');
-    }
-
-    private static string GetCategoryBadgeClass(string category)
-    {
-        if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
-        {
-            return "recipe-badge recipe-badge--green";
-        }
-
-        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase))
-        {
-            return "recipe-badge recipe-badge--freezable";
-        }
-
-        return "recipe-badge";
-    }
-
-    private static string GetCategoryLink(string category)
-    {
-        return $"categories?category={Uri.EscapeDataString(category)}";
-    }
-
-    private static string GetIngredientLink(string ingredient)
-    {
-        return $"ingredients?ingredient={Uri.EscapeDataString(ingredient)}";
     }
 
     private static string InjectStepCircleLabels(string html)

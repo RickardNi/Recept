@@ -42,7 +42,7 @@
         <ul class="list-recipes-list">
             @foreach (var recipe in displayedRecipes)
             {
-                var orderedCategories = GetOrderedCategories(recipe.Categories);
+                var orderedCategories = CategoryDefinitions.GetOrderedCategories(recipe.Categories);
 
                 <li class="list-recipes-row">
                     <a class="recipe-link-with-favorite" href="recipe/@recipe.Slug">
@@ -55,7 +55,7 @@
                     <div class="list-recipes-badges">
                         @foreach (var category in orderedCategories.Highlighted)
                         {
-                            <a class="@GetCategoryBadgeClass(category)" href="@GetCategoryLink(category)">
+                            <a class="@CategoryDefinitions.GetBadgeCssClass(category)" href="@CategoryDefinitions.GetCategoryLink(category)">
                                 @if (IconCatalog.Icons.TryGetValue(category, out var icon))
                                 {
                                     @((MarkupString)icon)
@@ -66,7 +66,7 @@
 
                         @foreach (var category in orderedCategories.Secondary)
                         {
-                            <a class="recipe-tag" href="@GetCategoryLink(category)">@category</a>
+                            <a class="recipe-tag" href="@CategoryDefinitions.GetCategoryLink(category)">@category</a>
                         }
                     </div>
                 </li>
@@ -143,51 +143,8 @@
         ApplyFilter();
     }
 
-    private static OrderedCategories GetOrderedCategories(List<string> categories)
-    {
-        var highlighted = CategoryDefinitions.HighlightedCategoryOrder
-            .Where(highlight => categories.Contains(highlight, StringComparer.OrdinalIgnoreCase))
-            .ToList();
-
-        if (highlighted.Any(category => string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
-        {
-            highlighted = highlighted
-                .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
-
-        var secondary = categories
-            .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
-            .ToList();
-
-        return new OrderedCategories(highlighted, secondary);
-    }
-
-    private static string GetCategoryBadgeClass(string category)
-    {
-        if (string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
-        {
-            return "recipe-badge recipe-badge--green";
-        }
-
-        if (string.Equals(category, "Frysbara", StringComparison.OrdinalIgnoreCase))
-        {
-            return "recipe-badge recipe-badge--freezable";
-        }
-
-        return "recipe-badge";
-    }
-
-    private static string GetCategoryLink(string category)
-    {
-        return $"categories?category={Uri.EscapeDataString(category)}";
-    }
-
     private bool IsFavorite(string slug)
     {
         return favoriteSlugSet.Contains(slug);
     }
-
-    private sealed record OrderedCategories(List<string> Highlighted, List<string> Secondary);
 }
