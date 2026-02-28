@@ -1,7 +1,7 @@
 @page "/recipe/{slug}"
 @using Markdig
 @using System.Text.RegularExpressions
-@inject HttpClient Http
+@inject RecipeService RecipeService
 @inject ISettingsStorage SettingsStorage
 @inject IJSRuntime JS
 @implements IAsyncDisposable
@@ -218,74 +218,38 @@ else
             secondaryCategories = new();
             ingredientTags = new();
 
-            // Construct the path to the markdown file
-            var markdownPath = $"recipes/{Slug}.md";
+            var markdown = await RecipeService.GetRecipeMarkdownAsync(Slug);
+            var metadata = RecipeService.ParseMetadata(Slug, markdown);
 
-            // Fetch the markdown content
-            var markdown = await Http.GetStringAsync(markdownPath);
-
-            // Strip YAML frontmatter and extract title
-            var markdownWithoutFrontmatter = markdown;
-            var frontmatterMatch = Regex.Match(markdown, @"^---\s*\n(.*?)\n---\s*\n", RegexOptions.Singleline);
-
-            if (frontmatterMatch.Success)
+            recipeTitle = metadata.Title;
+            if (!string.IsNullOrEmpty(recipeTitle))
             {
-                // Extract title from frontmatter
-                var frontmatter = frontmatterMatch.Groups[1].Value;
-                var titleMatch = Regex.Match(frontmatter, @"title:\s*[""'](.+?)[""']");
-                if (titleMatch.Success)
-                {
-                    recipeTitle = titleMatch.Groups[1].Value;
-                    pageTitle = recipeTitle + " - Recept";
-                }
-
-                // Extract default servings
-                var servingsMatch = Regex.Match(frontmatter, @"servings:\s*(\d+)");
-                if (servingsMatch.Success && int.TryParse(servingsMatch.Groups[1].Value, out var s))
-                {
-                    defaultServings = s;
-                    currentServings = s;
-                }
-
-                recipeCategories = ParseFrontmatterList(frontmatter, "categories")
-                    .Select(category => category.Trim())
-                    .Where(category => !string.IsNullOrWhiteSpace(category))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-                ingredientTags = ParseFrontmatterList(frontmatter, "ingredients");
-
-                // Backwards compatibility for old frontmatter: freezable: true
-                var freezableMatch = Regex.Match(frontmatter, @"freezable:\s*(true|false)", RegexOptions.IgnoreCase);
-                var isFreezable = freezableMatch.Success &&
-                                 string.Equals(freezableMatch.Groups[1].Value, "true", StringComparison.OrdinalIgnoreCase);
-                if (isFreezable && !recipeCategories.Contains("Frysbara"))
-                {
-                    recipeCategories.Add("Frysbara");
-                }
-
-                highlightedCategories = CategoryDefinitions.HighlightedCategoryOrder
-                    .Where(highlight => recipeCategories.Contains(highlight))
-                    .ToList();
-
-                if (highlightedCategories.Any(category =>
-                    string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
-                {
-                    highlightedCategories = highlightedCategories
-                        .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                }
-
-                secondaryCategories = recipeCategories
-                    .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
-                    .ToList();
-
-                // Extract cook time
-                var cookTimeMatch = Regex.Match(frontmatter, @"cookTime:\s*[""']?(.+?)[""']?\s*$", RegexOptions.Multiline);
-                cookTime = cookTimeMatch.Success ? cookTimeMatch.Groups[1].Value.Trim() : string.Empty;
-
-                // Remove frontmatter from markdown
-                markdownWithoutFrontmatter = markdown.Substring(frontmatterMatch.Length);
+                pageTitle = recipeTitle + " - Recept";
             }
+
+            defaultServings = metadata.Servings ?? 1;
+            currentServings = defaultServings;
+            cookTime = metadata.CookTime;
+            recipeCategories = metadata.Categories;
+            ingredientTags = metadata.Ingredients;
+
+            highlightedCategories = CategoryDefinitions.HighlightedCategoryOrder
+                .Where(highlight => recipeCategories.Contains(highlight))
+                .ToList();
+
+            if (highlightedCategories.Any(category =>
+                string.Equals(category, "Veganskt", StringComparison.OrdinalIgnoreCase)))
+            {
+                highlightedCategories = highlightedCategories
+                    .Where(category => !string.Equals(category, "Vegetariskt", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            secondaryCategories = recipeCategories
+                .Where(category => !CategoryDefinitions.HighlightedCategorySet.Contains(category))
+                .ToList();
+
+            var markdownWithoutFrontmatter = RecipeService.StripFrontmatter(markdown);
 
             // Fallback: extract first H1 if no frontmatter title
             if (string.IsNullOrEmpty(recipeTitle))
@@ -501,24 +465,6 @@ else
             return ((long)rounded).ToString();
         return rounded.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)
             .Replace('.', ',');
-    }
-
-    private static List<string> ParseFrontmatterList(string frontmatter, string key)
-    {
-        var listMatch = Regex.Match(
-            frontmatter,
-            $@"{Regex.Escape(key)}:\s*\n((?:\s+-\s+.+\n?)+)",
-            RegexOptions.Multiline);
-
-        if (!listMatch.Success)
-        {
-            return [];
-        }
-
-        return Regex.Matches(listMatch.Groups[1].Value, @"-\s+(.+)")
-            .Select(m => m.Groups[1].Value.Trim())
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .ToList();
     }
 
     private static string GetCategoryBadgeClass(string category)
