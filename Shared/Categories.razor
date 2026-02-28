@@ -59,9 +59,9 @@ else
 }
 
 @code {
-    private List<RecipeMetadata> allRecipes = new();
-    private List<string> categories = new();
-    private List<RecipeMetadata> filteredRecipes = new();
+    private List<RecipeMetadata> allRecipes = [];
+    private List<string> categories = [];
+    private List<RecipeMetadata> filteredRecipes = [];
     private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
     private string selectedCategory = string.Empty;
     private bool isLoading = true;

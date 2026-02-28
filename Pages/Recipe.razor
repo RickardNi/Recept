@@ -150,10 +150,10 @@ else
     private bool showFavoriteLabel = false;
     private string favoriteStatusLabel = string.Empty;
     private int favoriteLabelSequence = 0;
-    private List<string> recipeCategories = new();
-    private List<string> highlightedCategories = new();
-    private List<string> secondaryCategories = new();
-    private List<string> ingredientTags = new();
+    private List<string> recipeCategories = [];
+    private List<string> highlightedCategories = [];
+    private List<string> secondaryCategories = [];
+    private List<string> ingredientTags = [];
 
     protected override async Task OnParametersSetAsync()
     {
@@ -213,10 +213,10 @@ else
             defaultServings = 1;
             currentServings = 1;
             cookTime = string.Empty;
-            recipeCategories = new();
-            highlightedCategories = new();
-            secondaryCategories = new();
-            ingredientTags = new();
+            recipeCategories = [];
+            highlightedCategories = [];
+            secondaryCategories = [];
+            ingredientTags = [];
 
             var markdown = await RecipeService.GetRecipeMarkdownAsync(Slug);
             var metadata = RecipeService.ParseMetadata(Slug, markdown);

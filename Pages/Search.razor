@@ -36,8 +36,8 @@
     [SupplyParameterFromQuery(Name = "query")]
     public string? Query { get; set; }
 
-    private List<RecipeMetadata> allRecipes = new();
-    private List<RecipeMetadata> results = new();
+    private List<RecipeMetadata> allRecipes = [];
+    private List<RecipeMetadata> results = [];
     private bool isLoading = true;
     private string currentQuery = string.Empty;
 
@@ -48,7 +48,7 @@
         if (string.IsNullOrWhiteSpace(currentQuery))
         {
             isLoading = false;
-            results = new();
+            results = [];
             return;
         }
 

@@ -66,8 +66,8 @@
 </section>
 
 @code {
-	private List<RecipeMetadata> favoriteRecipes = new();
-	private List<RecipeMetadata> recentRecipes = new();
+	private List<RecipeMetadata> favoriteRecipes = [];
+	private List<RecipeMetadata> recentRecipes = [];
 	private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
 	private bool isLoading = true;
 

@@ -84,8 +84,8 @@
     private string pageTitle = "Alla recept";
     private string headingTitle = "Alla recept";
     private string quickFilter = string.Empty;
-    private List<RecipeMetadata> allRecipes = new();
-    private List<RecipeMetadata> displayedRecipes = new();
+    private List<RecipeMetadata> allRecipes = [];
+    private List<RecipeMetadata> displayedRecipes = [];
     private HashSet<string> favoriteSlugSet = new(StringComparer.OrdinalIgnoreCase);
     private int favoriteRecipeCount;
 
